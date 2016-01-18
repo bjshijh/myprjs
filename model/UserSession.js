@@ -1,5 +1,6 @@
 var sessiondao = require( '../database/UserSessionDao');
 var lang = require( '../common/lang');
+var uuid = require( 'uuid');
 
 var UserSession = function () {}
 
@@ -16,8 +17,23 @@ UserSession.prototype.validate = function *( userId, sessionId ) {
         return { errCode : -1, result :'invalid session, please log in again' }; 
 };
 
-UserSession.prototype.updateSession = function *( userId, sessionId, otherArgs ) {
+UserSession.prototype.refreshSession = function *( userId, otherArgs ) {
+    var sessionId = uuid.v4();
     var args = { sessionid: sessionId, updateddttm : new Date() };
-    lang.mixin( args, otherArgs );
+    args.deviceid= otherArgs.deviceid;
+    args.devicetype= otherArgs.devicetype;
+        
     yield sessiondao.setSession( userId, args );
+    return args;
 }
+
+UserSession.prototype.updateSession = function *( userId, otherArgs ) {
+    var args = { updateddttm : new Date() };
+    args.deviceid= otherArgs.deviceid;
+    args.devicetype= otherArgs.devicetype;
+        
+    yield sessiondao.setSession( userId, args );
+    return args;
+}
+
+module.exports = new UserSession ();

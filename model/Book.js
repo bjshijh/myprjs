@@ -11,13 +11,14 @@ Book.prototype.getBook = function *( bookId ) {
     lang.mixin ( this, book );
 };
 
-Book.prototype.searchBook = function *( byWhat, keyword, pagenum, pagesize) {
-    var rs = yield dao.search( byWhat, keyword, pagenum, pagesize );
-    return rs;
-};
 
 Book.prototype.addComment = function * ( userId, content ) {
     return cmtdao.addComment( userId, this.bookid, content ); 
 };
 
-module.exports = new Book ();
+Book.searchBook = function *( byWhat, keyword, pagenum, pagesize) {
+    var rs = yield dao.search( byWhat, keyword, pagenum, pagesize );
+    return rs;
+};
+
+module.exports = Book;

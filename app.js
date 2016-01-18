@@ -2,6 +2,10 @@ var express = require('express');
 var path = require('path');
 var ftcomm = require('ftcommon');
 
+var xmlParser = require('express-xml-bodyparser');
+var cookieParser = require('cookie-parser')
+var bodyParser = require('body-parser');
+
 var useMockData = !!process.env.NODE_MOCK;
 var routerPath = useMockData?'./mock':'./routes';
 

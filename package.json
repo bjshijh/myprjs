@@ -7,14 +7,16 @@
     "email" : "shijianhua@zhongledp.com"
   },
   "keywords" : [ ],
-  "licenses" : {
-    "type" : "none"
-  },
+  "license": "MIT",
   "repository" : {
     "type" : "git",
-    "url" : "git://github.com/YOUR_LOGIN/Hello World.git"
+    "url" : "git://github.com/bjshijh/myprjs.git"
   },
   "bugs" : {
     "url" : "http://github.com/YOUR_LOGIN/Hello World/issues"
-  }
+  },
+    "scripts": {
+        "start": "node bin\/www.js"
+    }
+
 }

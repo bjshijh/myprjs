@@ -1,6 +1,6 @@
 var dbconn = requrie('../database/mysql').connection;
 var dbhelper = require( '../database/mysql_helper');
-var dboper = require('../database/DbOper')(dbconn);
+var dboper = require('../database/MySqlOperator')(dbconn);
 
 var BooksDao = function () {
     this.tableName ='books'; 
@@ -24,6 +24,12 @@ BooksDao.prototype.update = function * ( bookId, args) {
     yield dboper.update ( this.tableName, args );
 };
 
+BooksDao.prototype.getUserBooks = function *( userId, pagenum, pagesize ) {
+  var sql="SELECT * FROM userbooks WHERE userid=? ";
+  var rows = yield dboper.select( this.tableName, { userid: userId }, 'createddttm DESC', pagenum, pagesize );
+  return rows;
+};
+
 BooksDao.prototype.search = function *( byWhat, keywords, pagenum, pagesize ) {
     pagesize = ( pagesize ? pagesize : 20 );
     var sql='SELECT * FROM ' + this.tableName + ' WHERE '
@@ -44,7 +50,3 @@ BooksDao.prototype.search = function *( byWhat, keywords, pagenum, pagesize ) {
 }
 
 module.exports = new BooksDao();
-
-
-
-

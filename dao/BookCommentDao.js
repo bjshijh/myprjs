@@ -1,6 +1,7 @@
-var dbconn = requrie('../database/mysql').connection;
+var dbconn = require('../database/mysql').connection;
 var dbhelper = require( '../database/mysql_helper');
-var dboper = require('../database/MySqlOperator')(dbconn);
+var MySqlOperator = require('../database/MySqlOperator');
+var dboper = new MySqlOperator(dbconn);
 var uuid = require( 'uuid');
 
 var BookCommentDao = function () {

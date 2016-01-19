@@ -1,6 +1,7 @@
-var dbconn = requrie('../database/mysql').connection;
+var dbconn = require('../database/mysql').connection;
 var dbhelper = require( '../database/mysql_helper');
-var dboper = require('../database/MySqlOperator')(dbconn);
+var MySqlOperator = require('../database/MySqlOperator');
+var dboper = new MySqlOperator(dbconn);
 
 var BooksDao = function () {
     this.tableName ='books'; 
@@ -18,6 +19,7 @@ BooksDao.prototype.insert = function * ( args) {
    } 
    
    yield dboper.insert ( this.tableName, args );
+   return args;
 };
 
 BooksDao.prototype.update = function * ( bookId, args) {

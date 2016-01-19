@@ -24,7 +24,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next){
-	log.info({request: req});
 	res.header('Access-Control-Allow-Origin','*');
 	//req.isMock = useMockData;
 	var q = req.body.q || req.query.q;
@@ -63,18 +62,18 @@ app.use(function(req, res, next){
 });
 
 var routes = require('./routes/index');
-//var user = require(routerPath+'/user');
-//var book = require(routerPath+'/book');
+var user = require(routerPath+'/user');
+var book = require(routerPath+'/book');
 
 app.use ('/', routes );
-//app.user('/user', user );
-//app.user('/book', book );
+app.use('/user', user );
+app.use('/book', book );
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-	log.error({err:err, req:req}, 'HTTP 500: '+req.originalUrl);
+	console.log( {err:err, req:req}, 'HTTP 500: '+req.originalUrl);
   res.render('error', {
     message: err.message,
     error: {}

@@ -25,15 +25,20 @@ var config = {
 		domain: '7xjjq3.com2.z0.glb.qiniucdn.com',
 		bucket: 'fruitpub'
 	},
+        /*
 	redis: {
 		nodes:  [ { port: 30001, host: '101.200.2.187'}, { port: 30002, host: '101.200.2.187'}, { port: 30003, host: '101.200.2.187'} ]
-	},
+	},*/
+        redis: {
+           host: '127.0.0.1', port: 6379, password: 'redis', database : 0 
+        }, 
+        
 	statServer: {
 		uri: 'http://127.0.0.1:4000' // must not use nginx proxy to connect because this is websocket
 	},
 	logger: {
-		app: 'HawkEye',
-		name: 'hawkeye',
+		app: 'SchoolLibrary',
+		name: 'SchoolLibrary',
 		server: {
 			host: 'localhost',
 			port: 23456

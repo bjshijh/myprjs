@@ -9,14 +9,20 @@ var AppUser = function (arg) {
 
 AppUser.prototype.getUser = function *( userkey ) {
     var user = null;
-    if ( userkey.indexOf('@') )  {  // email
+    if ( userkey.indexOf('@')>=0 )  {  // email
         user = yield dao.getUser( { email: userkey} );
     } else {
         user = yield dao.getUser( { userid: userkey} );
     }
     if ( user ) {
-        lang.minxin ( this, user );
+        lang.mixin ( this, user );
     }
+};
+
+AppUser.prototype.addUser = function *( args ) {
+    var user = yield dao.insertUser ( args );
+    if ( user)
+        lang.mixin ( this, user );
 };
 
 AppUser.prototype.getMyBooks = function *( pagenum, pagesize ) {

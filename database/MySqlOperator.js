@@ -41,8 +41,14 @@ MySqlOperator.prototype.select = function * ( tableName, whereArg, orderArg, pag
     pnum = ( pagenum ? pagenum : 1 );
     sidx = ( pnum -1 )* psize;
     sql += ' LIMIT ' + sidx + ', ' + psize; 
-    var rs = yield dbhelper.execute( this.connection, sql, whereArg ); 
-    return rs.rows;
+    try {
+        console.log(sql, whereArg);
+        var rs = yield dbhelper.execute( this.connection, sql, whereArg ); 
+        return rs.rows;
+    } catch(e) {
+        console.log(e);
+        return -1;
+    }
 };
 
 MySqlOperator.prototype.insert = function * ( tableName, arg) {
@@ -54,9 +60,13 @@ MySqlOperator.prototype.insert = function * ( tableName, arg) {
     fld= fld.substr( 0, fld.length -1 ) + ')';
     val= val.substr( 0, val.length -1 ) + ')';
     sql += fld + val; 
-    
-    var rs= yield dbhelper.execute( this.connection, sql, arg ); 
-    return rs;
+    try {
+        console.log( sql, arg );
+        var rs= yield dbhelper.execute( this.connection, sql, arg ); 
+        return 0;
+    } catch (e) {
+        return -1;
+    }
 };
 
 MySqlOperator.prototype.update = function * ( tableName, valArg, whereArg ) {
@@ -74,16 +84,24 @@ MySqlOperator.prototype.update = function * ( tableName, valArg, whereArg ) {
         params.push( whereArg[p]);
     }
     
-    console.log(sql, params);
-    var rs= yield dbhelper.execute( this.connection, sql, params ); 
-    return rs.rows;
+    try {
+        var rs= yield dbhelper.execute( this.connection, sql, params ); 
+        return 0;
+    } catch (e) {
+        return -1
+    }
 }
 
 MySqlOperator.prototype.delete = function *( tableName, whereArg) {
     var sql='DELETE FROM ' + tableName;
     var where = getWhere( whereArg );
     sqk += where;
-    yield dbhelper.execute( this.connection, sql, whereArg ); 
+    try {
+        yield dbhelper.execute( this.connection, sql, whereArg ); 
+        return 0;
+    } catch(e) {
+        return -1;
+    }
 };
 
 MySqlOperator.prototype.search = function * ( tableName, field, kw, orderArg, pagenum, pagesize ) {

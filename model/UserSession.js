@@ -1,4 +1,4 @@
-var sessiondao = require( '../database/UserSessionDao');
+var sessiondao = require( '../dao/UserSessionDao');
 var lang = require( '../common/lang');
 var uuid = require( 'uuid');
 
@@ -19,7 +19,7 @@ UserSession.prototype.validate = function *( userId, sessionId ) {
 
 UserSession.prototype.refreshSession = function *( userId, otherArgs ) {
     var sessionId = uuid.v4();
-    var args = { sessionid: sessionId, updateddttm : new Date() };
+    var args = { sessionid: sessionId, updateddttm : (new Date()).getTime() };
     args.deviceid= otherArgs.deviceid;
     args.devicetype= otherArgs.devicetype;
         

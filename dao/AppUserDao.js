@@ -1,6 +1,7 @@
-var dbconn = requrie('../database/mysql').connection;
+var dbconn = require('../database/mysql').connection;
 var dbhelper = require( '../database/mysql_helper');
-var dboper = require('../database/MySqlOperator')(dbconn);
+var MySqlOperator = require('../database/MySqlOperator');
+var dboper = new MySqlOperator(dbconn);
 var uuid = require( 'uuid');
 
 var AppUserDao = function () {
@@ -10,11 +11,11 @@ var AppUserDao = function () {
 AppUserDao.prototype.getUser = function *( arg ) {
     var rs = null;
     if ( arg.userid ) {
-        rs = yield dboper.select( this.tableName, {userid: arg.userId }, null ); 
+        rs = yield dboper.select( this.tableName, {userid: arg.userid }, null ); 
     } else if ( arg.email) {
         rs = yield dboper.select( this.tableName, {email: arg.email }, null ); 
     }   
-    return ( rs && rs.rows.length>0 ? rs.rows[0] : null );
+    return ( rs && rs.length>0 ? rs[0] : null );
 };
 
 AppUserDao.prototype.updateUser = function *( userId, arg ) { 
@@ -25,10 +26,16 @@ AppUserDao.prototype.insertUser = function *( arg ) {
     if ( !arg.appuserid ) {
         arg.userid = uuid.v4();
     }
-    yield dboper.insert( this.tableName, arg ); 
+    arg.createddttm = new Date();
+    var res = yield dboper.insert( this.tableName, arg ); 
+    if ( res ==0 )
+        return arg;
+    else
+        return null; 
 };
 
 AppUserDao.prototype.deleteUser = function *( userId ) { 
     yield dboper.delete( this.tableName, { userid : userId } ); 
 };
 
+module.exports = new AppUserDao();

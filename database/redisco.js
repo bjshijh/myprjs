@@ -1,7 +1,7 @@
 var co = require('co');
 var config = require('../config');
 
-/*   单实例的Redis
+//  单实例的Redis
 var redisClient = require('redis').createClient( config.redis.port, config.redis.host );
 var redisWrapper = require('co-redis');
 var redisCo = redisWrapper(redisClient);
@@ -10,15 +10,15 @@ co( function *() {
 	yield redisCo.auth( config.redis.password );
 	yield redisCo.select( config.redis.database );
 })
-*/
 
 
 //  Redis Cluster 
+/*
 var Redis = require('ioredis');
 var redisCluster = new Redis.Cluster( config.redis.nodes ); 
 var redisWrapper = require('co-redis');
 var redisCo = redisWrapper(redisCluster);
-
+*/
 
 var synchRedisCluster, synchRedisCo, synchSites ;
 var dbtype = "redis"
@@ -124,7 +124,7 @@ var redisCommands = {
 module.exports = {
 	redis : redisCo, 
 	
-	asyncRedis: redisCluster,
+	//asyncRedis: redisCluster,
 	
 	setObject: function * ( key, obj ) {
 		var val = obj;

@@ -8,6 +8,11 @@ var UserBooksDao = function () {
     this.tableName ='userbooks';
 };
 
+UserBooksDao.prototype.getUserBooks = function *( userId, pagenum, pagesize ) {
+  var rows = yield dboper.select( this.tableName, { userid: userId }, 'createddttm DESC', pagenum, pagesize );
+  return rows;
+};
+
 UserBooksDao.prototype.addUserBook= function *( userId, bookId, isOpen) {
     var rec = { userid: userId, bookid: bookId, isopen: isOpen, createddttm: new Date(), bookstatus: 1 };
     var res = yield dboper.insert ( this.tableName, rec ); 

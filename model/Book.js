@@ -10,7 +10,7 @@ var Book = function ( args ) {
 };
 
 Book.prototype.getBook = function *( bookId ) {
-    var book = yield dao.queryById( booId );
+    var book = yield dao.queryById( bookId );
     lang.mixin ( this, book );
 };
 

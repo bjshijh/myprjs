@@ -1,6 +1,7 @@
 var lang = require('../common/lang');
 var dao = require( '../dao/AppUserDao');
 var booksdao = require('../dao/BooksDao');
+var userbooksdao = require('../dao/UserBooksDao'); 
 
 var AppUser = function (arg) {  
     if ( arg )
@@ -26,7 +27,7 @@ AppUser.prototype.addUser = function *( args ) {
 };
 
 AppUser.prototype.getMyBooks = function *( pagenum, pagesize ) {
-    var rows = yield booksdao.getUserBooks ( this.userid, pagenum, pagesize ); 
+    var rows = yield userbooksdao.getUserBooks ( this.userid, pagenum, pagesize ); 
     return rows;
 };
 

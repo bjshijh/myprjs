@@ -9,7 +9,7 @@ var BooksDao = function () {
 
 BooksDao.prototype.queryById = function *( bookId) {
     var rs = yield dboper.select ( this.tableName, { bookid: bookId } );
-    return ( rs.rows.length>0 ? rs.rows[0] : null ); 
+    return ( rs.length>0 ? rs[0] : null ); 
 };
 
 BooksDao.prototype.insert = function * ( args) {
@@ -26,11 +26,6 @@ BooksDao.prototype.update = function * ( bookId, args) {
     yield dboper.update ( this.tableName, args );
 };
 
-BooksDao.prototype.getUserBooks = function *( userId, pagenum, pagesize ) {
-  var sql="SELECT * FROM userbooks WHERE userid=? ";
-  var rows = yield dboper.select( this.tableName, { userid: userId }, 'createddttm DESC', pagenum, pagesize );
-  return rows;
-};
 
 BooksDao.prototype.search = function *( byWhat, keywords, pagenum, pagesize ) {
     pagesize = ( pagesize ? pagesize : 20 );

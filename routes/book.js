@@ -34,7 +34,6 @@ router.all('/addBook',  function ( req, res ) {
                 } 
                 
                 var rec = yield userbooksdao.addUserBook( args.userid, book.bookid, isopen );
-                console.log( '!!!!!!!', rec );
                 if ( rec==0 ) {
                     res.json ( { errCode: 0, result: 'ok' } );
                 } else {

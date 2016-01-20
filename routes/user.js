@@ -78,15 +78,15 @@ router.all('/mybooks',  function ( req, res ) {
     var args = req.jsonData, retval=[] ;
     co(function*(){
         try{
-            var vq = usersession.validate( args.userid, args.sessionid ); 
+            var vq = yield usersession.validate( args.userid, args.sessionid ); 
             if ( vq.errCode != 0 ) {
                 res.json ( vq ); 
             } else {
                 var user = new AppUser ( { userid: args.userid } );
-                var books = user.getMyBooks( args.pagenum, args.pagesize );
+                var books = yield user.getMyBooks( args.pagenum, args.pagesize );
                 for ( var i=0; i<books.length; i++) {
                     var book = new Book();
-                    yield book.getBook( books.bookid ); 
+                    yield book.getBook( books[i].bookid ); 
                     book.createddttm = books[i].createddttm; 
                     retval.push( book ); 
                 }

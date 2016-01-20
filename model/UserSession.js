@@ -22,7 +22,8 @@ UserSession.prototype.refreshSession = function *( userId, otherArgs ) {
     var args = { sessionid: sessionId, updateddttm : (new Date()).getTime() };
     args.deviceid= otherArgs.deviceid;
     args.devicetype= otherArgs.devicetype;
-        
+    
+    args.userid = userId; 
     yield sessiondao.setSession( userId, args );
     return args;
 }

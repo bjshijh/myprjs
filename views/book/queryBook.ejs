@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Query Book</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script language='javascript'>
+            function encrypt()
+            {
+                document.forms[0].action='/encrypt';
+                document.forms[0].submit();
+            }
+            function decrypt()
+            {
+                document.forms[0].action='/decrypt';
+                document.forms[0].submit();
+            }
+    </script>
+  </head>
+  <body>
+    <h3>Search Book</h3>
+    <form method='POST' id='form'>
+    <p>Data:</p> <textarea name='d' rows='5' cols='80'></textarea>
+        <p>
+                <button onclick='encrypt()'>Encrypt</button>
+                <button onclick='decrypt()'>Decrypt</button>
+        </p>
+    </form>
+</body>
+</html>

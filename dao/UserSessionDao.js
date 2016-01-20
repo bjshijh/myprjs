@@ -20,6 +20,7 @@ UserSessionDao.prototype.setSession = function *( userId, args ) {
         kvs.push ( p);
         kvs.push ( args[p] );
     }
+    
     yield redisco.execute ( 'hmset', kvs );
 };
 

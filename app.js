@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ limit: '10mb', extended: false, type:function(re
 }));
 app.use(xmlParser());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client')));
 
 app.use(function(req, res, next){
 	res.header('Access-Control-Allow-Origin','*');

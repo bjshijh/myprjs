@@ -11,9 +11,8 @@ var usersession = require( '../model/UserSession');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.send('This is default page for /user.');
+    res.render( 'user/login.ejs');
   } );
-
 
 router.all('/register',  function ( req, res ) {
     var args = req.jsonData ;
@@ -38,11 +37,12 @@ router.all('/register',  function ( req, res ) {
 
 router.all('/login',  function ( req, res ) {
     var args = req.jsonData, retval ;
+    console.log( 'login', args );
     co(function*(){
         try{
             var user = new AppUser();
             yield user.getUser( args.userid );
-            console.log( user );
+            console.log( user, args.apppassword );
             if ( user && user.apppassword=== args.apppassword) {
                 var ss = yield usersession.refreshSession( user.userid, args );
                 retval = { errCode: 0, value: 'ok', value: ss }; 
@@ -60,9 +60,9 @@ router.all('/login2',  function ( req, res ) {
     var args = req.jsonData, retval ;
     co(function*(){
         try{
-            var ss = yield session.getSession ( args.userid );
+            var ss = yield usersession.getSession ( args.userid );
             if ( ss && ss.sessionid === args.sessionid ) {
-                var ss = yield usersession.updateSession( user.userid, args );
+                var ss = yield usersession.updateSession( args.userid, args );
                 retval = { errCode: 0, value: 'ok', value: ss }; 
             } else {
                 retval = { errCode: -1, value: 'session expired. please re-login' } ;

@@ -16,24 +16,34 @@ router.get('/', function(req, res, next) {
     res.send('This is default page for /book.');
   } );
 
+router.get('/addBook.ejs', function(req, res, next) {
+    res.render( 'book/addBook.ejs');
+  } );
+
 router.all('/addBook',  function ( req, res ) {
-    var args = req.jsonData ;
+    var rpjson = req.jsonData ;
+    var userdata = rpjson.userinfo; 
+    var args = rpjson.bizdata;  ;
+    
+    if ( !args.cip ) {
+        return { errCode: -101, result: 'no CIP' };
+    }
     co(function*(){
         try{
-            var vq = yield usersession.validate( args.userid, args.sessionid ); 
+            var vq = yield usersession.validate( userdata.userid, userdata.sessionid ); 
             var isopen = ( args.isopen ? args.isopen : 1 );
             if ( vq.errCode != 0 ) {
                 res.json ( vq ); 
             } else {
                 var book = new Book( { bookid: args.bookid } );
                 if ( !args.bookid ) {
-                    yield book.insert ( args ); 
+                    yield book.addBook ( args ); 
                     if ( !book.bookid ) {
                         return { errCode: -100, result: 'create book failed' };
                     }
                 } 
                 
-                var rec = yield userbooksdao.addUserBook( args.userid, book.bookid, isopen );
+                var rec = yield userbooksdao.addUserBook( userdata.userid, book.bookid, isopen );
                 if ( rec==0 ) {
                     res.json ( { errCode: 0, result: 'ok' } );
                 } else {

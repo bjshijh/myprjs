@@ -12,6 +12,19 @@ BooksDao.prototype.queryById = function *( bookId) {
     return ( rs.length>0 ? rs[0] : null ); 
 };
 
+BooksDao.prototype.queryBook = function *( arg ) {
+    var rs; 
+    if ( arg.cip ) {
+        rs = yield dboper.select ( this.tableName, { cip: arg.cip } );
+    }
+    else if ( arg.isbn ) {
+        rs = yield dboper.select ( this.tableName, { isbn: arg.isbn } );
+    }
+    else {
+    }
+    return ( rs && rs.length>0 ? rs[0] : null ); 
+};
+
 BooksDao.prototype.insert = function * ( args) {
    // bookid, isbn, icp, coverurl, author, publisher, publisheddate,
    if ( !args.createddttm ) {

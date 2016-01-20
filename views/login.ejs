@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Log in</title>
+    <script type='text/javascript' src='/js/jquery.min.js'></script>
+    <script type='text/javascript' src='/js/cookieAccess.js'></script>
+    <script type='text/javascript'>
+        function login() {
+            var uid = $('#email').val();
+            var pwd = $('#apppassword').val();
+            var formdata = { userid: uid, apppassword: pwd };
+            var rp = { z: JSON.stringify( formdata ) };
+            $.ajax ( {
+                    url: "/user/login",
+                    method: "post",
+                    data: rp, 
+                    async: false,
+                    success: function ( data) {
+                        if ( data.errCode == 0 ) {
+                            setCookie( 'email', uid);
+                            setCookie( 'userid', data.value.userid); 
+                            setCookie( 'sessionid', data.value.sessionid); 
+                            alert( 'log in successfully');
+                        } else {
+                            alert( 'log in Failed, please try again.');
+                        }
+                    }
+            }) 
+        }
+    </script>
+  </head>
+  <body>
+    <h3>Add Book</h3>
+    <form method='POST' id='form'>
+        <table>
+            <tr>
+                <td>E-Mail</td><td><input type='text' id='email' size='80'/></td>
+            </tr>
+            <tr>
+                <td>Password</td><td><input type='password' id='apppassword' size='20'/>
+            </tr>
+            <tr><td colspan='2'><input type='button' value='Log In' onclick='login();'></td></tr>
+        </table>
+    </form>
+</body>
+</html>

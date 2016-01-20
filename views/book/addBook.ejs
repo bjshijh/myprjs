@@ -21,13 +21,13 @@
 		}
 		function saveBook()
 		{
-                    var formdata = {};
+                    var formdata = {}, bizdata={};
                     var inputEles=$("input[type='text']");
                     for ( var i=0; i<inputEles.length; i++ ) {
-                        formdata[ inputEles[i].id ] = inputEles[i].value;
+                        bizdata[ inputEles[i].id ] = inputEles[i].value;
                     }
-                    formdata.userid = needlogin.userid;
-                    formdata.sessionid = needlogin.sessionid;
+                    formdata.bizdata= bizdata; 
+                    formdata.userinfo = { userid: needlogin.userid, sessionid: needlogin.sessionid };
                     var rp = { z: JSON.stringify( formdata ) };
                     $.ajax ( {
                             url: "/book/addBook",
@@ -46,10 +46,10 @@
     <form method='POST' id='form'>
 		CIP: <input type='text' id='cip'/>  <input type='button' value='Query' id='btnicp' onclick='queryIcp();' >
 		ISBN: <input type='text' id='isbn'/> <br>
-		Tile: <input type='text' id='title' size='100'/> <br>
+		Tile: <input type='text' id='booktitle' size='100'/> <br>
 		Author: <input type='text' id='author' size='40'/>
 		Publisher: <input type='text' id='publisher' size='40'/>
-		Publish Date: <input type='text' id='publishdate' size='10'/>
+		Publish Date: <input type='text' id='publisheddate' size='10'/>
 		
 		<br>
 		Cover: <input type='text' id='coverurl' size='100' readonly='readonly'/> <br>

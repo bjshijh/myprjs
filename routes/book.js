@@ -38,6 +38,7 @@ router.all('/addBook',  function ( req, res ) {
                 var book = new Book( { bookid: args.bookid } );
                 if ( !args.bookid ) {
                     yield book.addBook ( args ); 
+                    console.log( 'new book', book );
                     if ( !book.bookid ) {
                         return { errCode: -100, result: 'create book failed' };
                     }

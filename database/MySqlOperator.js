@@ -65,6 +65,7 @@ MySqlOperator.prototype.insert = function * ( tableName, arg) {
         var rs= yield dbhelper.execute( this.connection, sql, arg ); 
         return 0;
     } catch (e) {
+        console.log(e);
         return -1;
     }
 };
@@ -88,7 +89,8 @@ MySqlOperator.prototype.update = function * ( tableName, valArg, whereArg ) {
         var rs= yield dbhelper.execute( this.connection, sql, params ); 
         return 0;
     } catch (e) {
-        return -1
+        console.log(e);
+        return -1;
     }
 }
 
@@ -100,6 +102,7 @@ MySqlOperator.prototype.delete = function *( tableName, whereArg) {
         yield dbhelper.execute( this.connection, sql, whereArg ); 
         return 0;
     } catch(e) {
+        console.log(e);
         return -1;
     }
 };

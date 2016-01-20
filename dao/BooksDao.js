@@ -31,8 +31,13 @@ BooksDao.prototype.insert = function * ( args) {
        args.createddttm = new Date(); 
    } 
    
-   yield dboper.insert ( this.tableName, args );
-   return args;
+   var ok = yield dboper.insert ( this.tableName, args );
+   if ( ok == 0 ) {
+        return args;
+    } else {
+        return null;
+    }
+    
 };
 
 BooksDao.prototype.update = function * ( bookId, args) {

@@ -35,8 +35,8 @@ Book.prototype.addBook = function *( args ) {
         args.bookid = uuid.v4();
     }
     var res = yield dao.insert ( args  );
-    if (res==0)
-        lang.mixin ( this, book );
+    if (res )
+        lang.mixin ( this, args );
 };
 
 Book.prototype.addComment = function * ( userId, content ) {

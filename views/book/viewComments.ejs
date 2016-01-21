@@ -22,6 +22,7 @@
 
         var reqstr= getQueryString("z");
         var reqparam = JSON.parse( reqstr );
+        var curbookid = reqparam.bookid;
         var pagenum=1, pagesize =20;
         
         $( document ).ready(function() {
@@ -35,7 +36,7 @@
             getComments(  pagenum, pagesize );
         }
         function getComments ( pnum, psize ) {
-            var rp = { z : JSON.stringify( { bookid: reqparam.bookid, pagenum: pagenum, pagesize: pagesize } ) }; 
+            var rp = { z : JSON.stringify( { bookid: curbookid, pagenum: pagenum, pagesize: pagesize } ) }; 
           
             $.ajax( { url: "/book/getBookComments",
                 method: "post",
@@ -62,12 +63,12 @@
                 oCell1_3.innerText = cmts.rows[i].createddttm;
                 
                 var oRow2 =tbl.insertRow(tbl.rows.length);
-                var oCell2_1=oRow1.insertCell();
+                var oCell2_1=oRow2.insertCell();
                 oCell2_1.colSpan= '3';
                 oCell2_1.innerHTML= cmts.rows[i].commentcontent;
 
                 var oRow3 =tbl.insertRow(tbl.rows.length);
-                var oCell3_1=oRow1.insertCell();
+                var oCell3_1=oRow3.insertCell();
                 oCell3_1.colSpan= '3';
                 oCell3_1.innerHTML= 'Praise: ' + cmts.rows[i].praisecount + '    Oppose: ' + cmts.rows[i].opposecount ;
             }
@@ -82,6 +83,28 @@
                 $('#btnPrev').linkbutton('disable');
             }
         }
+        function sendBookComment() {
+            var needlogin = checkNeedToLogin ();
+            if ( !needlogin) {
+                window.location = '/login.ejs'; 
+            }; 
+            var content = document.getElementById( 'cmtConnet').value; 
+            var param ={ };
+            param.bizdata  = { bookid: curbookid, commentcontent: content };
+            param.userinfo = { userid: needlogin.userid, sessionid: needlogin.sessionid } ;
+            var rp= { z: JSON.stringify( param ) };    
+            $.ajax( { url: "/book/addBookComment",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) {
+                    if ( data.errCode == 0 )
+                        alert( '评论发布成功: ' + data.value.commentid );
+                    else
+                        alert( '评论发布失败');
+                }
+            } ) 
+        }
     </script>
   </head>
   <body>
@@ -92,14 +115,14 @@
         <tr>
             <td><a  class="easyui-linkbutton" id='btnPrev' style="width:80px" onclick='changePageNum("-");'>Prev Page</a></td>
             <td><a  class="easyui-linkbutton" id='btnNext'  style="width:80px" onclick='changePageNum("+");'>Next Page</a></td>
-            <td><a  class="easyui-linkbutton" id='btnToComment'  style="width:80px" onclick='changePageNum("+");'>Next Page</a></td>
         </tr>
     </table>    
 
     <div id="wndComment" class="easyui-window" title="发表您对此书的看法" data-options="iconCls:'', minimizable:false, maximizable:false, collapsible:false, closable:false, resizable:false" 
         style="width:600px;height:240px;padding:10px;">
-		<textarea cols="80" rows="8" id='cmtConnet'></textarea>
-        <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">发送</a>
-	</div>
+        <textarea cols="80" rows="8" id='cmtConnet'></textarea>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px"
+           onclick='sendBookComment();'>发送</a>
+    </div>
 </body>
 </html>

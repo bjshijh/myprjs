@@ -40,7 +40,8 @@ Book.prototype.addBook = function *( args ) {
 };
 
 Book.prototype.addComment = function * ( userId, content ) {
-    return cmtdao.addComment( userId, this.bookid, content ); 
+    var cmt=  yield cmtdao.addComment( userId, this.bookid, content ); 
+    return cmt;
 };
 
 Book.searchBook = function *( byWhat, keyword, pagenum, pagesize) {

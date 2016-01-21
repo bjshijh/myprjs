@@ -53,14 +53,14 @@ MySqlOperator.prototype.select = function * ( tableName, whereArg, orderArg, pag
 
 MySqlOperator.prototype.insert = function * ( tableName, arg) {
     var sql='INSERT INTO ' + tableName, fld=' (', val=' VALUES (';
-    for ( p in arg ) {
-        fld += p + ',';
-        val += ':' + p + ',';
-    }
-    fld= fld.substr( 0, fld.length -1 ) + ')';
-    val= val.substr( 0, val.length -1 ) + ')';
-    sql += fld + val; 
     try {
+        for ( p in arg ) {
+            fld += p + ',';
+            val += ':' + p + ',';
+        }
+        fld= fld.substr( 0, fld.length -1 ) + ')';
+        val= val.substr( 0, val.length -1 ) + ')';
+        sql += fld + val; 
         console.log( sql, arg );
         var rs= yield dbhelper.execute( this.connection, sql, arg ); 
         return 0;

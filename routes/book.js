@@ -128,5 +128,34 @@ router.all('/viewComments.ejs', function(req, res) {
    res.render( 'book/viewComments.ejs');
 });
 
+router.all('/addBookComment',  function ( req, res ) {
+    var rpjson = req.jsonData ;
+    var userdata = rpjson.userinfo; 
+    var bizdata = rpjson.bizdata;  ;
+    
+    co(function*(){
+        try{
+            var vq = yield usersession.validate( userdata.userid, userdata.sessionid ); 
+            if ( vq.errCode != 0 ) {
+                res.json ( vq ); 
+            } else {
+                var book = new Book( );
+                yield book.getBook( bizdata.bookid );
+                if ( !book.bookid ) {
+                    return { errCode: -200, result: 'Book does not exist' };
+                } 
+                var rec = yield book.addComment( userdata.userid, bizdata.commentcontent );  
+                if ( rec.commentid ) {
+                    res.json ( { errCode: 0, result: 'ok', value: rec } );
+                } else {
+                    res.json ( { errCode: -220, result: 'failed' } );
+                }
+            }
+        }catch(e){
+            console.log(e);
+        }
+    } );
+} );
+
 
 module.exports = router;

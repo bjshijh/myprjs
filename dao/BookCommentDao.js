@@ -5,15 +5,18 @@ var dboper = new MySqlOperator(dbconn);
 var uuid = require( 'uuid');
 
 var BookCommentDao = function () {
-    this.tableName='BookComments'
+    this.tableName='bookcomments'
 };
 
-BookCommentDao.prototype.addComment = function *( userid, bookId, commenttext ) {
-    var param =  { appuserid: userid, commentcontent: commenttext, createddttm: new Date(), bookid: bookId };
+BookCommentDao.prototype.addComment = function *( userId, bookId, commenttext ) {
+    var param =  { userid: userId, commentcontent: commenttext, createddttm: new Date(), bookid: bookId };
     param.cmtlevel =99 ;
     param.commentid = uuid.v4(); 
-    yield dboper.insert( this.tableName, param );
-    return param;
+    var r = yield dboper.insert( this.tableName, param );
+    if ( r==0 )
+        return param;
+    else
+        return null;
 };
 
 BookCommentDao.prototype.getComments = function *( bookId, pagenum, pagesize ) {

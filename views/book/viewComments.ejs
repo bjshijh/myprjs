@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Book Comments</title>
+    <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="/js/EasyUI/demo.css">
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/EasyUI/jquery.easyui.min.js"></script>
+    <script type='text/javascript' src='/js/cookieAccess.js'></script>
+    <script type='text/javascript' src='/js/checklogin.js'></script>
+
+    <script type='text/javascript'>
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) 
+                return unescape(r[2]); 
+            else
+                return null;
+        }
+
+        var reqstr= getQueryString("z");
+        var reqparam = JSON.parse( reqstr );
+        var pagenum=1, pagesize =20;
+        
+        $( document ).ready(function() {
+            getComments ( pagenum, pagesize );
+        } );
+    
+        function changePageNum( op ) {
+            if ( op=='+' ) pagenum+=1;
+            else pagenum-=1; 
+            
+            getComments(  pagenum, pagesize );
+        }
+        function getComments ( pnum, psize ) {
+            var rp = { z : JSON.stringify( { bookid: reqparam.bookid, pagenum: pagenum, pagesize: pagesize } ) }; 
+          
+            $.ajax( { url: "/book/getBookComments",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) {
+                    if ( data.errCode == 0 )
+                        showComments( data.value ); ;
+                }
+            } )
+        }
+        function showComments( bookwithcmts) {
+            document.getElementById('h3').innerText ='Comments On Book ' + bookwithcmts.booktitle;
+            var tbl=document.getElementById ( 'tblComments' );
+            var cmts = bookwithcmts.comments;
+            for ( var i=0; i< cmts.rows.length; i++ ) {
+                var aRows=tbl.rows;
+                var oRow1 =tbl.insertRow(tbl.rows.length);
+                var oCell1_1=oRow1.insertCell();
+                var oCell1_2=oRow1.insertCell();
+                var oCell1_3=oRow1.insertCell();
+                oCell1_1.innerHTML='<img height="60" width="60" src="' + cmts.rows[i].photourl + '"></img>';
+                oCell1_2.innerText = cmts.rows[i].nickname;
+                oCell1_3.innerText = cmts.rows[i].createddttm;
+                
+                var oRow2 =tbl.insertRow(tbl.rows.length);
+                var oCell2_1=oRow1.insertCell();
+                oCell2_1.colSpan= '3';
+                oCell2_1.innerHTML= cmts.rows[i].commentcontent;
+
+                var oRow3 =tbl.insertRow(tbl.rows.length);
+                var oCell3_1=oRow1.insertCell();
+                oCell3_1.colSpan= '3';
+                oCell3_1.innerHTML= 'Praise: ' + cmts.rows[i].praisecount + '    Oppose: ' + cmts.rows[i].opposecount ;
+            }
+            if ( cmts.rows.length == pagesize ) {
+                $('#btnNext').linkbutton('enable');    
+            } else {
+                $('#btnNext').linkbutton('disable');
+            }
+            if (pagenum > 1 ) {
+                $('#btnPrev').linkbutton('enable');    
+            } else {
+                $('#btnPrev').linkbutton('disable');
+            }
+        }
+    </script>
+  </head>
+  <body>
+    <h3 id='h3'>Comments On Book</h3>
+    <table id='tblComments' border='0' style='width:100%'> </table>
+    
+    <table style="width:600;"> 
+        <tr>
+            <td><a  class="easyui-linkbutton" id='btnPrev' style="width:80px" onclick='changePageNum("-");'>Prev Page</a></td>
+            <td><a  class="easyui-linkbutton" id='btnNext'  style="width:80px" onclick='changePageNum("+");'>Next Page</a></td>
+            <td><a  class="easyui-linkbutton" id='btnToComment'  style="width:80px" onclick='changePageNum("+");'>Next Page</a></td>
+        </tr>
+    </table>    
+
+    <div id="wndComment" class="easyui-window" title="发表您对此书的看法" data-options="iconCls:'', minimizable:false, maximizable:false, collapsible:false, closable:false, resizable:false" 
+        style="width:600px;height:240px;padding:10px;">
+		<textarea cols="80" rows="8" id='cmtConnet'></textarea>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px">发送</a>
+	</div>
+</body>
+</html>

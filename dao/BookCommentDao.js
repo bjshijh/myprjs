@@ -20,7 +20,7 @@ BookCommentDao.prototype.getComments = function *( bookId, pagenum, pagesize ) {
     var param = { bookid: bookId }; 
     var ob = ' cmtlevel ASC, createddttm DESC'; 
     var rs = yield dboper.select( this.tableName, param, ob, pagenum, pagesize );  
-    return rs.rows;
+    return rs;
 };
 
 BookCommentDao.prototype.deleteComment = function * ( cmtId ) {

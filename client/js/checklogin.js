@@ -4,6 +4,7 @@ function getPrevLoginInfo () {
     return { userid: uid, sessionid: sid };
 }
 
+// 如果上次登录过，且用户ID和SessionID依然有效，则返回他们；否则返回空
 function checkNeedToLogin() {
     var prv = getPrevLoginInfo();
     var need2 = null; 

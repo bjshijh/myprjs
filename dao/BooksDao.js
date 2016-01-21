@@ -46,22 +46,28 @@ BooksDao.prototype.update = function * ( bookId, args) {
 
 
 BooksDao.prototype.search = function *( byWhat, keywords, pagenum, pagesize ) {
+    pagenum = ( pagenum ? pagenum : 1 ); 
     pagesize = ( pagesize ? pagesize : 20 );
     var sql='SELECT * FROM ' + this.tableName + ' WHERE '
     switch( byWhat) {
         case 'author':
             sql += ' author LIKE \'%' +keywords + '%\'' ;
             break;
-        case 'title':
+        case 'booktitle':
             sql += ' booktitle LIKE \'%' +keywords + '%\'' ;
             break;
+        case 'cip':
+            sql += ' cip=\'' +keywords + '\'' ;
+            break;
+        default:
+            sql += '1=1';
     }
     
     var sidx = ( pagenum -1) * pagesize, eidx = sidx + pagesize;
     sql += " LIMIT " + sidx + ', ' + eidx; 
-    
-    var rs = yield dbhelper.execute( dbconn, sql, null );
-    return rs;
+    console.log( sql );
+    var rs = yield dbhelper.execute (dbconn, sql, null );
+    return { rows: rs.rows, pagenum: pagenum, pagesize: pagesize } ;
 }
 
 module.exports = new BooksDao();

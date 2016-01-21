@@ -20,6 +20,10 @@ router.get('/addBook.ejs', function(req, res, next) {
     res.render( 'book/addBook.ejs');
   } );
 
+router.get('/queryBook.ejs', function(req, res, next) {
+    res.render( 'book/queryBook.ejs');
+  } );
+
 router.all('/addBook',  function ( req, res ) {
     var rpjson = req.jsonData ;
     var userdata = rpjson.userinfo; 
@@ -72,16 +76,21 @@ router.all('/getBook', function(req, res) {
 
 router.all('/getBookComments', function(req, res) {
     var args = req.jsonData ;
-    var bookid = args.bookid; 
-    co(function*(){
-        var cmts = yield bookcmtdao.getComments( bookid, args.pagenum, args.pagesize ); 
-        var retval = { pagenum: args.pagenum, pagesize: args.pagesize, comments: cmts  }; 
-        res.json( { errCode: 0, result: 'ok', value: retval } );
+    var bookid = args.bookid, pagenum=(args.pagenum ? args.pagenum : 1) , pagesize=( args.pagesize ? args.pagesize :20 ); 
+     co(function*(){
+        var book = new Book();
+        yield book.getBook( bookid ); 
+        var cmts = yield bookcmtdao.getComments( bookid, pagenum, pagesize );
+        var comments = { pagenum : pagenum,  pagesize : pagesize, rows: cmts };
+        book.comments = comments;
+        
+        res.json( { errCode: 0, result: 'ok', value: book } );
     } );
 });
 
 router.all('/searchBook', function(req, res) {
     var args = req.jsonData ;
+    console.log( 'search book arg:', args );
     co(function*(){
         var books = yield Book.searchBook( args.bywhat, args.keyword, args.pagenum, args.pagesize ); 
         res.json( { errCode: 0, result: 'ok', value: books } );
@@ -102,6 +111,22 @@ router.all('/getBookOwners', function(req, res) {
     } );
 });
 
+router.all('/viewComments.ejs', function(req, res) {
+    var args = req.jsonData;
+    /*
+    var bookid = args.bookid, pagenum=(args.pagenum ? args.pagenum : 1) , pagesize=( args.pagesize ? args.pagesize :20 ); 
+     co(function*(){
+        var book = new Book();
+        yield book.getBook( bookid ); 
+        var cmts = yield bookcmtdao.getComments( bookid, pagenum, pagesize );
+        cmts.pagenum = pagenum;
+        cmts.pagesize = pagesize;
+        book.comments = cmts;
+        res.render( 'book/viewComments.ejs', { book: book } )
+    } );
+    */
+   res.render( 'book/viewComments.ejs');
+});
 
 
 module.exports = router;

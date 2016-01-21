@@ -2,28 +2,68 @@
 <html>
   <head>
     <title>Query Book</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script language='javascript'>
-            function encrypt()
-            {
-                document.forms[0].action='/encrypt';
-                document.forms[0].submit();
+    <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="/js/EasyUI/demo.css">
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/EasyUI/jquery.easyui.min.js"></script>
+    <script type='text/javascript'>
+        function doSearchBook () {
+            var bywhat = $("#byWhat").combobox("getValue");
+            var keyword = $("#keyword").val();
+            var rp = { z : JSON.stringify( { bywhat: bywhat, keyword: keyword } ) }; 
+            if ( bywhat && keyword && keyword.length>1) {
+                $.ajax( { url: "/book/searchBook",
+                    method: "post",
+                    data: rp, 
+                    async: false,
+                    success: function ( data) {
+                        if ( data.errCode == 0 )
+                            refreshResultGrid( data.value ); ;
+                    }
+                } )
             }
-            function decrypt()
-            {
-                document.forms[0].action='/decrypt';
-                document.forms[0].submit();
+        }
+        function refreshResultGrid (data ) {
+            var opts = $('#dgBooks').datagrid('options');
+            if ( opts.columns.length==0 && data.rows.length >0 ) {
+                var r0 = data.rows[0];
+                var cols = [ ], dgcols=[ ];
+                for ( f in r0) {
+                    cols.push( { field: f, title: f, align: 'center', color: 'blue'} );
+                }
+                dgcols.push( cols );
+                opts.columns = dgcols;
+                $('#dgBooks').datagrid( opts );
             }
+            
+            $('#dgBooks').datagrid('loadData', data.rows );
+        }
+        function viewComments () {
+             var r = $('#dgBooks').datagrid('getSelected');
+             window.open( 'viewComments.ejs?z={ "bookid":' + '"' + r.bookid +'"}');
+        }
     </script>
   </head>
   <body>
     <h3>Search Book</h3>
     <form method='POST' id='form'>
-    <p>Data:</p> <textarea name='d' rows='5' cols='80'></textarea>
-        <p>
-                <button onclick='encrypt()'>Encrypt</button>
-                <button onclick='decrypt()'>Decrypt</button>
-        </p>
+        <select class="easyui-combobox" id="byWhat" style="width:100px;">
+            <option value="cip">CIP号</option>
+            <option value="booktitle">书名</option>
+            <option value="author">作者</option>
+        </select>
+        <input class="easyui-textbox" size='40' id='keyword'>
+        <a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='doSearchBook();'>Search</a>
+
+        <hr>
+        <table class="easyui-datagrid" title="" style="width:100%;height:100%;padding:10px;" id="dgBooks"
+            data-options="singleSelect:true,collapsible:true,rownumbers:true" >
+        </table>
+        <br>
+        <a  class="easyui-linkbutton"  style="width:80px" onclick='doSearchBook();'>我想借书</a>
+        <a  class="easyui-linkbutton"  style="width:80px" onclick='viewComments();'>看书评</a>
+
     </form>
 </body>
 </html>

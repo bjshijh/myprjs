@@ -2,7 +2,12 @@
 <html>
   <head>
     <title>Log in</title>
-    <script type='text/javascript' src='/js/jquery.min.js'></script>
+   <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="/js/EasyUI/demo.css">
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/EasyUI/jquery.easyui.min.js"></script>
+
     <script type='text/javascript' src='/js/cookieAccess.js'></script>
     <script type='text/javascript'>
         function login() {
@@ -34,10 +39,10 @@
     <form method='POST' id='form'>
         <table>
             <tr>
-                <td>E-Mail</td><td><input type='text' id='email' size='80'/></td>
+                <input class="easyui-textbox" data-options="prompt:'Email Address:',validType:'email'" style="width:100%;height:32px">
             </tr>
             <tr>
-                <td>Password</td><td><input type='password' id='apppassword' size='20'/>
+                <td>Password</td><td><input type='password' id='apppassword' size='20' class="easyui-textbox" style="width:100%;height:32px"/>
             </tr>
             <tr><td colspan='2'><input type='button' value='Log In' onclick='login();'></td></tr>
         </table>

@@ -157,5 +157,23 @@ router.all('/addBookComment',  function ( req, res ) {
     } );
 } );
 
+router.all('/updateCommentCounter', function(req, res) {
+    var args = req.jsonData;
+    var userinfo = args.userinfo, bizdata = args.bizdata; 
+    var bookid = args.bookid, pagenum=(args.pagenum ? args.pagenum : 1) , pagesize=( args.pagesize ? args.pagesize :20 ); 
+     co(function*(){
+        var vq = yield usersession.validate( userinfo.userid, userinfo.sessionid ); 
+        if ( vq.errCode != 0 ) {
+            res.json ( vq ); 
+            return; 
+        }
+
+        var rs = yield bookcmtdao.updateCount( bizdata.commentid, bizdata.attitude, 1  );
+        if ( rs ==0 ) 
+            res.json( { errCode: 0, result: 'ok' } );
+        else
+            res.json ( { errCode: -221, result: 'failed' } );
+    } );
+});
 
 module.exports = router;

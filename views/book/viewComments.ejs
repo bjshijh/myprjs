@@ -59,8 +59,8 @@
                 var oCell1_2=oRow1.insertCell();
                 var oCell1_3=oRow1.insertCell();
                 oCell1_1.innerHTML='<img height="60" width="60" src="' + cmts.rows[i].photourl + '"></img>';
-                oCell1_2.innerText = cmts.rows[i].nickname;
-                oCell1_3.innerText = cmts.rows[i].createddttm;
+                oCell1_2.innerHTML = cmts.rows[i].nickname;
+                oCell1_3.innerHTML = cmts.rows[i].createddttm;
                 
                 var oRow2 =tbl.insertRow(tbl.rows.length);
                 var oCell2_1=oRow2.insertCell();
@@ -70,7 +70,8 @@
                 var oRow3 =tbl.insertRow(tbl.rows.length);
                 var oCell3_1=oRow3.insertCell();
                 oCell3_1.colSpan= '3';
-                oCell3_1.innerHTML= 'Praise: ' + cmts.rows[i].praisecount + '    Oppose: ' + cmts.rows[i].opposecount ;
+                oCell3_1.innerHTML= '<a class="easyui-linkbutton" data-options="iconCls:\'icon-ok\'" onclick="praise_oppose(\'praise\',  \'' +  cmts.rows[i].commentid + '\');">赞同</a> ' // + cmts.rows[i].praisecount 
+                                +   '<a class="easyui-linkbutton" data-options="iconCls:\'icon-no\'" onclick="praise_oppose(\'oppose\',\'' +  cmts.rows[i].commentid + '\');">反对</a>' ; // + cmts.rows[i].opposecount ;
             }
             if ( cmts.rows.length == pagesize ) {
                 $('#btnNext').linkbutton('enable');    
@@ -83,6 +84,27 @@
                 $('#btnPrev').linkbutton('disable');
             }
         }
+        function praise_oppose( attr, cmtid ) {
+            var needlogin = checkNeedToLogin ();
+            if ( !needlogin) { 
+                alert('请先登录');
+                return; 
+            }
+            var param = {  };
+            param.userinfo = { userid: needlogin.userid, sessionid: needlogin.sessionid };
+            param.bizdata = {  commentid: cmtid, attitude: attr }; 
+            var rp= { z: JSON.stringify( param ) };    
+            $.ajax( { url: "/book/updateCommentCounter",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) {
+                    if ( data.errCode == 0 )
+                        alert('成功');
+                }
+            } )
+        }
+
         function sendBookComment() {
             var needlogin = checkNeedToLogin ();
             if ( !needlogin) {
@@ -111,9 +133,10 @@
     <h3 id='h3'>Comments On Book</h3>
     <table id='tblComments' border='0' style='width:100%'> </table>
     
+    <p>
     <table style="width:600;"> 
         <tr>
-            <td><a  class="easyui-linkbutton" id='btnPrev' style="width:80px" onclick='changePageNum("-");'>Prev Page</a></td>
+            <td><a  class="easyui-linkbutton" id='btnPrev'  style="width:80px" onclick='changePageNum("-");'>Prev Page</a></td>
             <td><a  class="easyui-linkbutton" id='btnNext'  style="width:80px" onclick='changePageNum("+");'>Next Page</a></td>
         </tr>
     </table>    

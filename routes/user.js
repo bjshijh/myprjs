@@ -11,9 +11,13 @@ var usersession = require( '../model/UserSession');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render( 'user/login.ejs');
+    res.render( 'login');
   } );
 
+router.get('/profile.ejs', function(req, res, next) {
+    res.render( 'user/profile.ejs');
+  } );
+  
 router.all('/register',  function ( req, res ) {
     var args = req.jsonData ;
     console.log( 'register', args);

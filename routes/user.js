@@ -1,12 +1,18 @@
 var express = require('express');
 var router = express.Router();
+var path = require('path');
 var fs = require('fs');
 var ftcomm = require('ftcommon');
 var co = require('co');
+var formidable = require('formidable');
+var util = require('util');
 
+var fileUploader = require( '../dao/FileUploader');
 var AppUser = require( '../model/AppUser');
 var Book = require( '../model/Book');
 var userbooksdao = require('../dao/UserBooksDao'); 
+var userdao = require( '../dao/AppUserDao');
+
 var usersession = require( '../model/UserSession');
 
 /* GET home page. */
@@ -14,10 +20,44 @@ router.get('/', function(req, res, next) {
     res.render( 'login');
   } );
 
-router.get('/profile.ejs', function(req, res, next) {
-    res.render( 'user/profile.ejs');
-  } );
+router.all('/getUser', function(req, res) {
+    var args = req.jsonData ;
+    var user = new AppUser();
+    console.log( args );
+    co ( function *() {
+        yield user.getUser( args.userid );
+        if ( !user ) 
+            res.json( { errCode:-1, result: 'user does not exist'} );
+        else
+            res.json( { errCode:0,  result: '0k', value: user} );
+    } );
+  }  );
   
+router.get('/profile.ejs', function(req, res) {
+    res.render( 'user/profile.ejs' );
+} );
+
+router.post('/updateIcon', function(req, res) {
+    var tgtPath =  path.resolve ( __dirname, '../client/usericon/') ;
+    var form = new formidable.IncomingForm(); 
+    form.parse(req, function(err, fields, files) {
+        // {fields: fields, files: files};
+        var file = files.iconFileName;
+        var uid = fields.userid; 
+        fileUploader.saveFile( file, tgtPath, function(err, result) {
+            if ( err )
+                res.json( { errCode: -10, result: 'upload icon file failed', value: err } );
+            else { // result is the name of the file
+                var photourl = "/usericon/" + result;
+                co ( function *() { 
+                    yield userdao.updateUser( uid, { photourl: photourl } );
+                    res.json( { errCode: 0, result: 'ok', value: result } );
+                } );
+            }
+        }  );
+    } ); 
+  } );
+
 router.all('/register',  function ( req, res ) {
     var args = req.jsonData ;
     console.log( 'register', args);

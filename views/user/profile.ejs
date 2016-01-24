@@ -7,25 +7,41 @@
 	<link rel="stylesheet" type="text/css" href="/js/EasyUI/demo.css">
 	<script type="text/javascript" src="/js/jquery.min.js"></script>
 	<script type="text/javascript" src="/js/EasyUI/jquery.easyui.min.js"></script>
-
+        
     <script type='text/javascript' src='/js/cookieAccess.js'></script>
     <script type='text/javascript' src='/js/checklogin.js'></script>
-    
+    <script type="text/javascript" src="/js/common/pagetool.js"></script>
     <script type='text/javascript'>
         var needlogin = checkNeedToLogin ();
         if ( !needlogin) {
             window.location = '/login.ejs'; 
+        } 
+
+        $( document ).ready(function() {
+            var quid = getQueryString( 'userid' );
+            var curuserid = ( needlogin.userid || quid );
+            showUserInfo( curuserid ) ;
+        } );
+        function showUserInfo( uid) {
+            var rp = { z: JSON.stringify( { userid: uid } ) }; 
+            $.ajax ( {
+                url: "/user/getUser",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) {
+                    alert( JSON.stringify(data) );
+                    if ( data.errCode==0 && data.value ) {  // data.value is user information
+                        showUserInfo_s2( data.value );
+                    }
+                }
+            })
         }
-		function queryIcp()
-		{
-			
-		}
-		function uploadCover()
-		{
-			
-		}
-		function saveBook()
-		{
+        function showUserInfo_s2( userinfo ) {
+            setDocElementValues( userinfo );
+        }
+        function saveBook()
+        {
             var formdata = {}, bizdata={};
             var inputEles=$("input[type='text']");
             for ( var i=0; i<inputEles.length; i++ ) {
@@ -43,21 +59,25 @@
                         alert( JSON.stringify(data) );
                     }
             }) 
-		}
+        }
+        function uploadIcon() {
+            document.getElementById('userid').value = needlogin.userid;
+            document.getElementById('frmUpload').submit();
+            
+        }
     </script>
   </head>
   <body>
     <h3>Add Book</h3>
     <div id="p" class="easyui-panel" title="基本信息" style="width:700px;height:200px;padding:10px;">
         <form method='POST' id='frmBasic'>
-            <input type='hidden' id='userid' name='userid'>
             <table>
-                <tr> <td>邮箱: </td> <td><input class="easyui-textbox" style="width:400px;height:32px" id='email'> </td> </tr>
-                <tr> <td>昵称: </td> <td><input class="easyui-textbox" style="width:30%;height:32px" id='nickname'> </td> </tr>
+                <tr> <td>邮箱: </td> <td><input class="easyui-textbox" style="width:400px;height:32px" id='email' control_field='email'> </td> </tr>
+                <tr> <td>昵称: </td> <td><input class="easyui-textbox" style="width:30%;height:32px" id='nickname' control_field='nickname'> </td> </tr>
                 <tr> <td>性别: </td> <td>
-                    <INPUT type=radio name="gender" value='1'>男
-                    <INPUT type=radio name="gender" value='0'>女
-                    <INPUT type=radio name="gender" value='-1'>不公开
+                    <INPUT type=radio name="gender" value='1' control_field='gender'>男
+                    <INPUT type=radio name="gender" value='0' control_field='gender'>女
+                    <INPUT type=radio name="gender" value='-1' control_field='gender'>不公开
                 </td> </tr>
                 <tr> <td>是否公开: </td> <td><INPUT type=radio name="isopen" value='1'>可以
                     <INPUT type=radio name="isopen" value='0'>不要</td> </tr>
@@ -66,34 +86,28 @@
     </div>
     <P>
     <div id="p" class="easyui-panel" title="头像" style="width:700px;height:200px;padding:10px;">
-        <form id="frmUpload"  id='frmPhoto' encType="multipart/form-data"  target="msg_frame" method="post" action="./service/DataFileService">
-            <table style="width:200px;height:120px;padding:0px;">
-                <tr><td>头像</td><td><img id='photourl' src='/img/bear.jpg' width='80px' height='80px'>
-                <tr><td colspan='2'>
-                    <input type="file" size="120" style="width: 500px" id="srcFileName" name="srcFileName">
-                    <input type="submit" value="Upload" onclick="return doUpload();">
-
-                    <input type="hidden" id="uploadResult">
-
-                    <iframe name="msg_frame" id="msg_frame" style="display:none"> </iframe>
+        <table style="width:200px;height:100px;padding:0px;">
+            <tr><td>头像</td><td><img id='photourl' src='/img/bear.jpg' width='80px' height='80px'  control_field='photourl'></td></tr>
+        </table>    
+        <form id="frmUpload"  id='frmPhoto' encType="multipart/form-data" method="post"
+             action="/user/updateIcon">
+            <input type='hidden' id='userid' name='userid'>
+            <table style="width:200px;height:80px;padding:0px;">
+                <tr><td>
+                    <input type="file" size="120" style="width: 500px" id="iconFileName" name="iconFileName">
+                    <input type="button" value="Upload" onclick="uploadIcon();">
                 </td></tr>
             </table>
         </form>
     </div>    
     <P>
     <div id="p" class="easyui-panel" title="学校" style="width:700px;height:200px;padding:10px;">
-        <form id="frmUpload"  id='frmPhoto' encType="multipart/form-data"  target="msg_frame" method="post" action="./service/DataFileService">
-            <table style="width:200px;height:120px;padding:0px;">
-                <tr><td>头像</td><td><img id='photourl' src='/img/bear.jpg' width='80px' height='80px'>
-                <tr><td colspan='2'>
-                    <input type="file" size="120" style="width: 500px" id="srcFileName" name="srcFileName">
-                    <input type="submit" value="Upload" onclick="return doUpload();">
-
-                    <input type="hidden" id="uploadResult">
-
-                    <iframe name="msg_frame" id="msg_frame" style="display:none"> </iframe>
-                </td></tr>
-            </table>
+        <table style="width:200px;height:120px;padding:0px;" id='tblss>
+                
+        </table>
+            
+        <form id="frmUserSchool" method="post" action="./service/DataFileService">
+            
         </form>
     </div>
 </body>

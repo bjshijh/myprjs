@@ -14,6 +14,8 @@ var userbooksdao = require('../dao/UserBooksDao');
 var userdao = require( '../dao/AppUserDao');
 
 var usersession = require( '../model/UserSession');
+var userschooldao = require('../dao/UserSchoolDao');
+var schooldao = require('../dao/SchoolDao');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -32,7 +34,28 @@ router.all('/getUser', function(req, res) {
             res.json( { errCode:0,  result: '0k', value: user} );
     } );
   }  );
-  
+
+router.all('/getUserProfile', function(req, res) {
+    var args = req.jsonData ;
+    var user = new AppUser();
+    console.log( args );
+    co ( function *() {
+        yield user.getUser( args.userid ); 
+        if ( !user ) 
+            res.json( { errCode:-1, result: 'user does not exist'} );
+        else {
+            var usrecs = yield userschooldao.getUserSchoolRecs( args.userid );
+            for ( var i=0; usrecs && i<usrecs.length; i++ ) {
+                var sc = yield schooldao.getSchool( usrecs[i].schoolid );
+                usrecs[i].schoolname = sc.schoolname; 
+            }
+            user.userschools = usrecs;
+            console.log( user );
+            res.json( { errCode:0,  result: '0k', value: user} );
+        }
+    } );
+  }  );
+
 router.get('/profile.ejs', function(req, res) {
     res.render( 'user/profile.ejs' );
 } );

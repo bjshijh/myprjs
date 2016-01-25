@@ -36,8 +36,10 @@ router.all('/addStudent',  function ( req, res ) {
             res.json ( vq ); 
             return;
         }
+        console.log(args);
         var uexp = yield userschooldao.getUserSchoolRecs( userinfo.userid ); 
-        var rs = yield userschooldao.addUserSchool( userinfo.userid, bizdata.schoolid, bizdata:startdate, bizdata: gradeno, bizdata: classno );
+        var rs = yield userschooldao.addUserSchool( userinfo.userid, bizdata.schoolid,
+                new Date(bizdata.startdate), bizdata.gradeno, bizdata.classno );
         if ( rs == 0)
             res.json( { errCode:0, result:'ok'});
         else

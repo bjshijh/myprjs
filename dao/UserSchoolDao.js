@@ -10,7 +10,7 @@ var UserSchoolDao = function () {
 
 UserSchoolDao.prototype.getUserSchoolRecs = function *( userId ) {
     var qp = { userid: userId };
-    var rows = yield dboper.select( this.tableName, qp, 'start DESC' );
+    var rows = yield dboper.select( this.tableName, qp, 'startdate DESC' );
     return rows;
 };
 

@@ -16,9 +16,12 @@ SchoolDao.prototype.addSchool = function *( schoolName ) {
 }
 
 SchoolDao.prototype.getSchool = function *( schoolId ) {
-    var qp = { schoolid: schoolid };
+    var qp = { schoolid: schoolId };
     var rows = yield dboper.select( this.tableName, qp  );
-    return rows;
+    if ( rows && rows.length>0 )
+        return rows[0];
+    else
+        return null;
 }
 
 SchoolDao.prototype.querySchoolByName = function *( schoolName, pagenum, pagesize ) {

@@ -17,8 +17,12 @@
         if ( !needlogin) {
             window.location = '/login.ejs'; 
         } 
-
+        
         $(document).ready(function() {
+            /*$('#startdate').datebox({
+                formatter: function(date){ return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();},
+                parser: function(date){ return new Date(Date.parse(date.replace(/-/g,"/")));} 
+            } );*/
             var quid = getQueryString( 'userid' );
             var curuserid = ( needlogin.userid || quid );
             showUserInfo( curuserid ) ;
@@ -26,45 +30,26 @@
         function showUserInfo( uid) {
             var rp = { z: JSON.stringify( { userid: uid } ) }; 
             $.ajax ( {
-                url: "/user/getUser",
+                url: "/user/getUserProfile",
                 method: "post",
                 data: rp, 
                 async: false,
                 success: function ( data) {
-                    alert( JSON.stringify(data) );
                     if ( data.errCode==0 && data.value ) {  // data.value is user information
-                        showUserInfo_s2( data.value );
+                        var user = data.value;
+                        setDocElementValues( user );
+                        if ( user.userschools && user.userschools.length>0  ) {
+                            alert( JSON.stringify( user.userschools ) );
+                            $('#tblUserSchools').datagrid( 'loadData', { rows: user.userschools } );
+                        }
                     }
                 }
-            })
+            } );
         }
-        function showUserInfo_s2( userinfo ) {
-            setDocElementValues( userinfo );
-        }
-        function saveBook()
-        {
-            var formdata = {}, bizdata={};
-            var inputEles=$("input[type='text']");
-            for ( var i=0; i<inputEles.length; i++ ) {
-                bizdata[ inputEles[i].id ] = inputEles[i].value;
-            }
-            formdata.bizdata= bizdata; 
-            formdata.userinfo = { userid: needlogin.userid, sessionid: needlogin.sessionid };
-            var rp = { z: JSON.stringify( formdata ) };
-            $.ajax ( {
-                    url: "/book/addBook",
-                    method: "post",
-                    data: rp, 
-                    async: false,
-                    success: function ( data) {
-                        alert( JSON.stringify(data) );
-                    }
-            }) 
-        }
+        
         function uploadIcon() {
             document.getElementById('userid').value = needlogin.userid;
             document.getElementById('frmUpload').submit();
-            
         }
         function querySchool() {
             var sn = document.getElementById('schoolnamekw').value; 
@@ -83,33 +68,39 @@
                                 var itm = { value: rs[i].schoolid, text: rs[i].schoolname };
                                 newitms.push( itm ); 
                             }
-                            $('#cbScools').combobox('loadData',  newitms );
-                            $('#cbScools').combobox('select', newitms[0].value);
+                            $('#cbSchools').combobox('loadData',  newitms );
+                            $('#cbSchools').combobox('select', newitms[0].value);
                         }
                     }
             } ); 
         }
-        function addSchool () {
-            var schoolid = $('#cbScools').combobox('getValue');
-            var stdate = = $('#cbScools').datebox('getValue');
-            if ( !(schoolid && stdate) ) {
+        function addUserSchool () {
+            var schoolid = $('#cbSchools').combobox('getValue');
+            var stdate = $('#startdate').datebox('getValue');
+            alert( schoolid + ' : ' + stdate );
+            if ( !schoolid && !stdate || stdate.length!=10 ) {
                 alert('学校和入学日期不能空');
                 return;
             }
+            
+            var gno = $('#gradeno').combobox('getValue'), cno= $('#classno').numberbox('getValue');
+            var param = {   userinfo :needlogin, 
+                            bizdata: { schoolid: schoolid, startdate: stdate, gradeno: gno, classno: cno } }; 
+            var rp = { z: JSON.stringify( param ) };
             $.ajax ( {
-                    url: "/book/addBook",
-                    method: "post",
-                    data: rp, 
-                    async: false,
-                    success: function ( data) {
-                        alert( JSON.stringify(data) );
-                    }
+                url: "/school/addStudent",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) {
+                    alert( JSON.stringify(data) );
+                }
             }) 
         }
     </script>
   </head>
   <body>
-    <h3>Add Book</h3>
+    <h3>User Profile</h3>
     <div id="p" class="easyui-panel" title="基本信息" style="width:700px;height:200px;padding:10px;">
         <form method='POST' id='frmBasic'>
             <table>
@@ -142,12 +133,20 @@
         </form>
     </div>    
     <P>
-    <div id="p" class="easyui-panel" title="学校" style="width:700px;height:200px;padding:10px;">
-        <table style="width:200px;height:120px;padding:0px;" id='tblUserSchool'>
-            
+    <div id="p" class="easyui-panel" title="学校" style="width:700px;height:240px;padding:10px;">
+        <table class="easyui-datagrid" title="" style="width:680px;" id='tblUserSchools'>
+            <thead>
+                <tr>
+                    <th data-options="field:'schoolname', width:400">School Name</th>
+                    <th data-options="field:'startdate',  width:100">Start Date</th>
+                    <th data-options="field:'gradeno',    width:80,align:'center'">Grade</th>
+                    <th data-options="field:'classno',    width:80,align:'center'">Class</th>
+                </tr>
+            </thead>
         </table>
-
-        <div id="wndUserSchool" class="easyui-window" data-options="minimizable:false, maximizable:false, collapsible:false, closable:false, resizable:false" 
+    </div>    
+    <P>
+    <div id="wndUserSchool" class="easyui-window" data-options="minimizable:false, maximizable:false, collapsible:false, closable:false, resizable:false" 
             style="width:480px;height:240px;padding:10px;" title="添加经历过的学校">
         <table>
             <tr>
@@ -155,19 +154,32 @@
                 <td><input class="easyui-textbox" style="width:200px;height:32px" id='schoolnamekw'>
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='querySchool();'>查找</a>  
                 <td>
+            </tr>
             <tr>
                 <td>查找结果</td>
                 <td>
-                    <select class="easyui-combobox" id="cbScools" style="width:200px;">
+                    <select class="easyui-combobox" id="cbSchools" required="true" style="width:200px;">
                     </select>
                 </td>
             </tr>
             <tr>
-                <td>开始时间</td><td><input class="easyui-datebox" type='text' id='startdate'></input>
-                <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="width:80px"  onclick='addSchool();'>确定</a></td>
+                <td>开始时间</td>
+                <td><input class="easyui-datebox" type='text' id='startdate' required="true"></input></td>
             </tr>
-        </table>  
-        
+            <tr>
+                <td>年级和班级</td>
+                <td><select class="easyui-combobox" id="gradeno" style="width:80px;" required="true">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                    <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                    <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                    <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                    </select>
+                    <input id='classno' class="easyui-numberbox" min="1" max="40" precision="0" style="width:80px;" required="true"/>
+
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:80px" onclick='addUserSchool();'>确定</a>    
+                </td>
+            </tr>
+        </table>          
     </div>
 </body>
 </html>

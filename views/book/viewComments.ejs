@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>Book Comments</title>
     <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/icon.css">
@@ -142,7 +143,7 @@
     </table>    
 
     <div id="wndComment" class="easyui-window" title="发表您对此书的看法" data-options="iconCls:'', minimizable:false, maximizable:false, collapsible:false, closable:false, resizable:false" 
-        style="width:600px;height:240px;padding:10px;">
+        style="width:600px;height:240px;padding:10px;" >
         <textarea cols="80" rows="8" id='cmtConnet'></textarea>
         <a class="easyui-linkbutton" data-options="iconCls:'icon-save'" style="width:80px"
            onclick='sendBookComment();'>发送</a>

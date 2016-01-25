@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>User Profile</title>
     <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/icon.css">
@@ -17,7 +18,7 @@
             window.location = '/login.ejs'; 
         } 
 
-        $( document ).ready(function() {
+        $(document).ready(function() {
             var quid = getQueryString( 'userid' );
             var curuserid = ( needlogin.userid || quid );
             showUserInfo( curuserid ) ;
@@ -65,6 +66,46 @@
             document.getElementById('frmUpload').submit();
             
         }
+        function querySchool() {
+            var sn = document.getElementById('schoolnamekw').value; 
+            //sn =encodeURI( sn );
+            var rp = { z: JSON.stringify( { schoolname:  sn } ) }; 
+            $.ajax ( {
+                    url: "/school/querySchool",
+                    method: "post",
+                    data: rp, 
+                    async: false,
+                    success: function ( data) {
+                        if ( data.errCode ==0 && data.value && data.value.rows ) {
+                            $('#cbScools').combobox('clear');
+                            var rs = data.value.rows, newitms= []; 
+                            for ( var i=0; i< rs.length; i++ ) {
+                                var itm = { value: rs[i].schoolid, text: rs[i].schoolname };
+                                newitms.push( itm ); 
+                            }
+                            $('#cbScools').combobox('loadData',  newitms );
+                            $('#cbScools').combobox('select', newitms[0].value);
+                        }
+                    }
+            } ); 
+        }
+        function addSchool () {
+            var schoolid = $('#cbScools').combobox('getValue');
+            var stdate = = $('#cbScools').datebox('getValue');
+            if ( !(schoolid && stdate) ) {
+                alert('学校和入学日期不能空');
+                return;
+            }
+            $.ajax ( {
+                    url: "/book/addBook",
+                    method: "post",
+                    data: rp, 
+                    async: false,
+                    success: function ( data) {
+                        alert( JSON.stringify(data) );
+                    }
+            }) 
+        }
     </script>
   </head>
   <body>
@@ -102,13 +143,31 @@
     </div>    
     <P>
     <div id="p" class="easyui-panel" title="学校" style="width:700px;height:200px;padding:10px;">
-        <table style="width:200px;height:120px;padding:0px;" id='tblss>
-                
+        <table style="width:200px;height:120px;padding:0px;" id='tblUserSchool'>
+            
         </table>
-            
-        <form id="frmUserSchool" method="post" action="./service/DataFileService">
-            
-        </form>
+
+        <div id="wndUserSchool" class="easyui-window" data-options="minimizable:false, maximizable:false, collapsible:false, closable:false, resizable:false" 
+            style="width:480px;height:240px;padding:10px;" title="添加经历过的学校">
+        <table>
+            <tr>
+                <td>学校名称</td>
+                <td><input class="easyui-textbox" style="width:200px;height:32px" id='schoolnamekw'>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='querySchool();'>查找</a>  
+                <td>
+            <tr>
+                <td>查找结果</td>
+                <td>
+                    <select class="easyui-combobox" id="cbScools" style="width:200px;">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>开始时间</td><td><input class="easyui-datebox" type='text' id='startdate'></input>
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="width:80px"  onclick='addSchool();'>确定</a></td>
+            </tr>
+        </table>  
+        
     </div>
 </body>
 </html>

@@ -64,10 +64,13 @@ app.use(function(req, res, next){
 var routes = require('./routes/index');
 var user = require(routerPath+'/user');
 var book = require(routerPath+'/book');
+var school = require(routerPath+'/school');
+
 
 app.use ('/', routes );
 app.use('/user', user );
 app.use('/book', book );
+app.use('/school', school);
 
 // production error handler
 // no stacktraces leaked to user

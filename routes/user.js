@@ -91,11 +91,11 @@ router.all('/register',  function ( req, res ) {
             };
             
             var user = new AppUser();
-            user = yield user.addUser( args );
-            if ( user )
+            user = yield user.addUser( args );  // 返回用户对象，否则返回errCode不为0的result对象
+            if ( user && user.userid )
                 res.json( { errCode: 0, result: 'ok', value: user } );
             else
-                res.json( { errCode: -3, result: 'registration error', value: null } );
+                res.json( user );
         }catch(e){
             console.log(e);
         }

@@ -26,6 +26,7 @@
                             setCookie( 'userid', data.value.userid); 
                             setCookie( 'sessionid', data.value.sessionid); 
                             alert( 'log in successfully');
+                            window.location='./user/profile.ejs';
                         } else {
                             alert( 'log in Failed, please try again.');
                         }

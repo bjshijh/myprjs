@@ -70,4 +70,36 @@ BooksDao.prototype.search = function *( byWhat, keywords, pagenum, pagesize ) {
     return { rows: rs.rows, pagenum: pagenum, pagesize: pagesize } ;
 }
 
+// 只查找学校内的书籍
+BooksDao.prototype.searchBySchool = function *( schoolId, byWhat, keywords, pagenum, pagesize ) {
+    pagenum = ( pagenum ? pagenum : 1 ); 
+    pagesize = ( pagesize ? pagesize : 20 );
+    var sql='SELECT * FROM v_latest_schoolbooks WHERE schoolid=? AND '
+    switch( byWhat) {
+        case 'author':
+            sql += " author LIKE concat('%', ?, '%')" ;
+            break;
+        case 'booktitle':
+            sql += " booktitle LIKE concat('%', ?, '%')" ;
+            break;
+        case 'cip':
+            sql += ' cip=?' ;
+            break;
+        default:
+            sql += ' 1=1';
+    }
+    
+    var sidx = ( pagenum -1) * pagesize, eidx = sidx + pagesize;
+    sql += " LIMIT " + sidx + ', ' + eidx; 
+    console.log( sql );
+    var rs = yield dbhelper.execute (dbconn, sql, [ schoolId, keywords ] );
+    return { rows: rs.rows, pagenum: pagenum, pagesize: pagesize } ;
+}
+
+BooksDao.prototype.findAvailableBooksInSchool = function *( bookId, schoolId ) {
+    var qp = { bookid: bookId, schoolid: schoolId };
+    var rows = yield dboper.select ( 'v_latest_schoolbooks', qp ); 
+    return rows;
+}
+
 module.exports = new BooksDao();

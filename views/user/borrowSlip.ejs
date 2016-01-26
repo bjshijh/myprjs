@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Query Book</title>
+    <title借书单</title>
     <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
 	<link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/icon.css">
 	<link rel="stylesheet" type="text/css" href="/js/EasyUI/demo.css">
@@ -9,29 +9,26 @@
 	<script type="text/javascript" src="/js/EasyUI/jquery.easyui.min.js"></script>
     <script type='text/javascript' src='/js/cookieAccess.js'></script>
     <script type='text/javascript' src='/js/checklogin.js'></script>
-
+    <script type="text/javascript" src="/js/common/pagetool.js"></script>
     <script type='text/javascript'>
         var needlogin = checkNeedToLogin ();
         if ( !needlogin) {
             window.location = '/login.ejs'; 
         } 
+        $(document).ready( function () {
+            var param = { userid: needlogin.userid, sessionid: needlogin.sessionid, bookid: bookid }; 
+            var rp = { z: JSON.stringify( param ) };
+             $.ajax ( {
+                url: "/book/findAvailableBooksInSchool",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) { 
 
-        function doSearchBook () {
-            var bywhat = $("#byWhat").combobox("getValue");
-            var keyword = $("#keyword").val();
-            var rp = { z : JSON.stringify( { userid: needlogin.userid, sessionid: needlogin.sessionid, bywhat: bywhat, keyword: keyword } ) }; 
-            if ( bywhat && keyword && keyword.length>1) {
-                $.ajax( { url: "/book/searchBook",
-                    method: "post",
-                    data: rp, 
-                    async: false,
-                    success: function ( data) {
-                        if ( data.errCode == 0 )
-                            refreshResultGrid( data.value ); ;
-                    }
-                } )
-            }
+                }
+            }  );
         }
+
         function refreshResultGrid (data ) {
             var opts = $('#dgBooks').datagrid('options');
             if ( opts.columns.length==0 && data.rows.length >0 ) {
@@ -47,32 +44,17 @@
             
             $('#dgBooks').datagrid('loadData', data.rows );
         }
-        function viewComments () {
-             var r = $('#dgBooks').datagrid('getSelected');
-             window.open( 'viewComments.ejs?z={ "bookid":' + '"' + r.bookid +'"}');
-        }
-        function gotoBorrow() {
-            window.location ='../user/borrowSlip.ejs';
-        }
+
     </script>
   </head>
   <body>
     <h3>Search Book</h3>
     <form method='POST' id='form'>
-        <select class="easyui-combobox" id="byWhat" style="width:100px;">
-            <option value="cip">CIP号</option>
-            <option value="booktitle">书名</option>
-            <option value="author">作者</option>
-        </select>
-        <input class="easyui-textbox" required="true" type="text" size='40' id='keyword'/>
-        <a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='doSearchBook();'>Search</a>
-
-        <hr>
         <table class="easyui-datagrid" title="" style="width:100%;height:100%;padding:10px;" id="dgBooks"
             data-options="singleSelect:true,collapsible:true,rownumbers:true" >
         </table>
         <br>
-        <a  class="easyui-linkbutton"  style="width:80px" onclick='gotoBorrow();'>我想借书</a>
+        <a  class="easyui-linkbutton"  style="width:80px" onclick='fillSlip();'>我想借书</a>
         <a  class="easyui-linkbutton"  style="width:80px" onclick='viewComments();'>看书评</a>
 
     </form>

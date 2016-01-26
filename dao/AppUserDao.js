@@ -23,9 +23,6 @@ AppUserDao.prototype.updateUser = function *( userId, arg ) {
 };
 
 AppUserDao.prototype.insertUser = function *( arg ) { 
-    if ( !arg.appuserid ) {
-        arg.userid = uuid.v4();
-    };
     if ( !arg.isopen )
         arg.isopen =1;
     if ( !arg.gender )

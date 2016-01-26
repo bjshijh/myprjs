@@ -4,7 +4,6 @@ var cmtdao = require('../dao/BookCommentDao');
 var userbooksdao = require( '../dao/UserBooksDao');
 var uuid = require( 'uuid' );
 
-
 var Book = function ( args ) {
     lang.mixin( this, args);
 };
@@ -46,6 +45,11 @@ Book.prototype.addComment = function * ( userId, content ) {
 
 Book.searchBook = function *( byWhat, keyword, pagenum, pagesize) {
     var rs = yield dao.search( byWhat, keyword, pagenum, pagesize );
+    return rs;
+};
+
+Book.searchBookInSchool = function *( schoolId, byWhat, keyword, pagenum, pagesize) {
+    var rs = yield dao.searchBySchool( schoolId, byWhat, keyword, pagenum, pagesize );
     return rs;
 };
 

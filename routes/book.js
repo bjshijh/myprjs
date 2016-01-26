@@ -7,9 +7,11 @@ var co = require('co');
 var usersession = require( '../model/UserSession');
 
 var AppUser = require( '../model/AppUser'); 
+var booksdao = require( '../dao/BooksDao');
 var Book = require('../model/Book'); 
 var userbooksdao = require('../dao/UserBooksDao'); 
 var bookcmtdao = require( '../dao/BookCommentDao');
+var userschooldao = require('../dao/UserSchoolDao');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -35,7 +37,6 @@ router.all('/addBook',  function ( req, res ) {
     co(function*(){
         try{
             var vq = yield usersession.validate( userdata.userid, userdata.sessionid ); 
-            var isopen = ( args.isopen ? args.isopen : 1 );
             if ( vq.errCode != 0 ) {
                 res.json ( vq ); 
             } else {
@@ -91,9 +92,21 @@ router.all('/getBookComments', function(req, res) {
 router.all('/searchBook', function(req, res) {
     var args = req.jsonData ;
     console.log( 'search book arg:', args );
+    
     co(function*(){
-        var books = yield Book.searchBook( args.bywhat, args.keyword, args.pagenum, args.pagesize ); 
-        res.json( { errCode: 0, result: 'ok', value: books } );
+        var vq = yield usersession.validate( args.userid, args.sessionid ); 
+        if ( vq.errCode != 0 ) {
+            res.json ( vq ); 
+            return;
+        };
+        
+        var us = yield userschooldao.getUserSchoolRecs( args.userid );
+        if ( us && us.length>0) {
+            var books = yield Book.searchBookInSchool( us[0].schoolid, args.bywhat, args.keyword, args.pagenum, args.pagesize ); 
+            res.json( { errCode: 0, result: 'ok', value: books } );
+        } else {
+            res.json( { errCode: -20, result: '没有学校记录，请完善档案'} );
+        }
     } );
 });
 
@@ -113,18 +126,7 @@ router.all('/getBookOwners', function(req, res) {
 
 router.all('/viewComments.ejs', function(req, res) {
     var args = req.jsonData;
-    /*
-    var bookid = args.bookid, pagenum=(args.pagenum ? args.pagenum : 1) , pagesize=( args.pagesize ? args.pagesize :20 ); 
-     co(function*(){
-        var book = new Book();
-        yield book.getBook( bookid ); 
-        var cmts = yield bookcmtdao.getComments( bookid, pagenum, pagesize );
-        cmts.pagenum = pagenum;
-        cmts.pagesize = pagesize;
-        book.comments = cmts;
-        res.render( 'book/viewComments.ejs', { book: book } )
-    } );
-    */
+
    res.render( 'book/viewComments.ejs');
 });
 
@@ -157,22 +159,25 @@ router.all('/addBookComment',  function ( req, res ) {
     } );
 } );
 
-router.all('/updateCommentCounter', function(req, res) {
+router.all('/findAvailableBooksInSchool', function(req, res) {
     var args = req.jsonData;
-    var userinfo = args.userinfo, bizdata = args.bizdata; 
-    var bookid = args.bookid, pagenum=(args.pagenum ? args.pagenum : 1) , pagesize=( args.pagesize ? args.pagesize :20 ); 
      co(function*(){
         var vq = yield usersession.validate( userinfo.userid, userinfo.sessionid ); 
         if ( vq.errCode != 0 ) {
             res.json ( vq ); 
             return; 
         }
-
-        var rs = yield bookcmtdao.updateCount( bizdata.commentid, bizdata.attitude, 1  );
-        if ( rs ==0 ) 
-            res.json( { errCode: 0, result: 'ok' } );
+        
+        var us = yield userschooldao.getUserSchoolRecs( args.userid );
+        if ( us && us.length >0 ) {
+            res.json( { errCode: -50, result: '未注册所属学校' } );
+            return;
+        }
+        var lst = yield booksdao.findAvailableBooksInSchool ( args.bookid, us[0].schoolid ); 
+        if ( lst ) 
+            res.json( { errCode: 0, result: 'ok', value: lst } );
         else
-            res.json ( { errCode: -221, result: 'failed' } );
+            res.json ( { errCode: -301, result: 'failed' } );
     } );
 });
 

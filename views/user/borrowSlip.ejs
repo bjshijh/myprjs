@@ -24,7 +24,7 @@
                 data: rp, 
                 async: false,
                 success: function ( data) { 
-
+                    
                 }
             }  );
         }
@@ -51,7 +51,15 @@
     <h3>Search Book</h3>
     <form method='POST' id='form'>
         <table class="easyui-datagrid" title="" style="width:100%;height:100%;padding:10px;" id="dgBooks"
-            data-options="singleSelect:true,collapsible:true,rownumbers:true" >
+                data-options="singleSelect:true,collapsible:true,rownumbers:true" >
+            <thead>
+                <tr>
+                    <th data-options="field:'bookid', width:400">School Name</th>
+                    <th data-options="field:'startdate',  width:100">Start Date</th>
+                    <th data-options="field:'gradeno',    width:80,align:'center'">Grade</th>
+                    <th data-options="field:'classno',    width:80,align:'center'">Class</th>
+                </tr>
+            </thead>
         </table>
         <br>
         <a  class="easyui-linkbutton"  style="width:80px" onclick='fillSlip();'>我想借书</a>

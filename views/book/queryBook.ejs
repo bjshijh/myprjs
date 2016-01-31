@@ -21,6 +21,7 @@
             var keyword = $("#keyword").val();
             var rp = { z : JSON.stringify( { userid: needlogin.userid, sessionid: needlogin.sessionid, bywhat: bywhat, keyword: keyword } ) }; 
             if ( bywhat && keyword && keyword.length>1) {
+                alert( JSON.stringify( rp ) );
                 $.ajax( { url: "/book/searchBook",
                     method: "post",
                     data: rp, 
@@ -52,7 +53,9 @@
              window.open( 'viewComments.ejs?z={ "bookid":' + '"' + r.bookid +'"}');
         }
         function gotoBorrow() {
-            window.location ='../user/borrowSlip.ejs';
+            var row =$('#dgBooks').datagrid('getSelected');
+            alert( row.bookid );
+            window.location ='../user/borrowSlip.ejs?bookid=' + row.bookid;
         }
     </script>
   </head>
@@ -68,8 +71,21 @@
         <a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='doSearchBook();'>Search</a>
 
         <hr>
-        <table class="easyui-datagrid" title="" style="width:100%;height:100%;padding:10px;" id="dgBooks"
-            data-options="singleSelect:true,collapsible:true,rownumbers:true" >
+        <table class="easyui-datagrid" title="" style="width:100%;height:400px;padding:2px;" id="dgBooks"
+                data-options="singleSelect:true,collapsible:true,rownumbers:true" >
+            <thead>
+                <tr>
+                    <th data-options="field:'booktitle',  width:200">书名</th>
+                    <th data-options="field:'author',    width:120,align:'center'">作者</th>
+                    <th data-options="field:'publisher',    width:160,align:'center'">出版社</th>
+                    <th data-options="field:'gradeno',    width:40,align:'center'">年级</th>
+                    <th data-options="field:'classno',    width:40,align:'center'">班级</th>
+                    <th data-options="field:'nickname',    width:120,align:'center'">Nickname</th>
+                    <th data-options="field:'photourl',    width:'120', align:'center', formatter:function(value,row,index){return '<img height=80px  src='+row.photourl+' />';}"></th>
+                    <th data-options="field:'email', width:200, align:'center'">Email</th>
+                    <th data-options="field:'bookstatus',    width:80,align:'center'">状态</th>
+                </tr>
+            </thead>
         </table>
         <br>
         <a  class="easyui-linkbutton"  style="width:80px" onclick='gotoBorrow();'>我想借书</a>

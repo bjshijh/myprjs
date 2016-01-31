@@ -14,57 +14,81 @@
         var needlogin = checkNeedToLogin ();
         if ( !needlogin) {
             window.location = '/login.ejs'; 
-        } 
+        }
+
+        var bookid, bookownerinfo;
         $(document).ready( function () {
+            bookid = getQueryString( 'bookid' );
+
             var param = { userid: needlogin.userid, sessionid: needlogin.sessionid, bookid: bookid }; 
             var rp = { z: JSON.stringify( param ) };
-             $.ajax ( {
+            $.ajax ( {
                 url: "/book/findAvailableBooksInSchool",
                 method: "post",
                 data: rp, 
                 async: false,
                 success: function ( data) { 
-                    
+                    if ( data.errCode == 0 ) {
+                        bookownerinfo = data.value; 
+                        refreshResultGrid(  );
+                    }
+                    else
+                        alert( data.result );
                 }
-            }  );
-        }
+            } );
+        } );
 
-        function refreshResultGrid (data ) {
-            var opts = $('#dgBooks').datagrid('options');
-            if ( opts.columns.length==0 && data.rows.length >0 ) {
-                var r0 = data.rows[0];
-                var cols = [ ], dgcols=[ ];
-                for ( f in r0) {
-                    cols.push( { field: f, title: f, align: 'center', color: 'blue'} );
-                }
-                dgcols.push( cols );
-                opts.columns = dgcols;
-                $('#dgBooks').datagrid( opts );
-            }
+        function refreshResultGrid (  ) {
+            alert( JSON.stringify (bookownerinfo) );
             
-            $('#dgBooks').datagrid('loadData', data.rows );
+            $('#dgBooks').datagrid('loadData', bookownerinfo );
         }
 
+        function requestBorrow() {
+            var fd = $('#fromdate').datebox('getValue'), rd = $('#forecastedreturndate').datebox('getValue') ; 
+            var bizdata = { bookid: bookid, ownerid: needlogin.userid,  fromdate: rd, forecastedreturndate: rd,
+                comment: $('#comment').val()  };
+            var rp = { z: JSON.stringify( { userinfo : needlogin, bizdata: bizdata } ) };
+            $.ajax ( {
+                url: "/book/borrowBook",
+                method: "post",
+                data: rp, 
+                async: false,
+                success: function ( data) { ;
+                    if ( data.errCode == 0 )
+                        refreshResultGrid( data.value );
+                    else
+                        alert( data.result );
+                }
+            } );
+        }
     </script>
   </head>
   <body>
-    <h3>Search Book</h3>
-    <form method='POST' id='form'>
-        <table class="easyui-datagrid" title="" style="width:100%;height:100%;padding:10px;" id="dgBooks"
+    <h3>借书</h3>
+        <table class="easyui-datagrid" title="" style="width:800px%;height:130px;padding:2px;" id="dgBooks"
                 data-options="singleSelect:true,collapsible:true,rownumbers:true" >
             <thead>
                 <tr>
-                    <th data-options="field:'bookid', width:400">School Name</th>
-                    <th data-options="field:'startdate',  width:100">Start Date</th>
-                    <th data-options="field:'gradeno',    width:80,align:'center'">Grade</th>
-                    <th data-options="field:'classno',    width:80,align:'center'">Class</th>
+                    <th data-options="field:'booktitle',  width:200">书名</th>
+                    <th data-options="field:'author',    width:120,align:'center'">作者</th>
+                    <th data-options="field:'publisher',    width:160,align:'center'">出版社</th>
+                    <th data-options="field:'gradeno',    width:40,align:'center'">年级</th>
+                    <th data-options="field:'classno',    width:40,align:'center'">班级</th>
+                    <th data-options="field:'nickname',    width:120,align:'center'">Nickname</th>
+                    <th data-options="field:'photourl',    width:'120', align:'center', formatter:function(value,row,index){return '<img height=80px  src='+row.photourl+' />';}"></th>
+                    <th data-options="field:'email', width:200, align:'center'">Email</th>
+                    <th data-options="field:'bookstatus',    width:80,align:'center'">状态</th>
                 </tr>
             </thead>
         </table>
-        <br>
-        <a  class="easyui-linkbutton"  style="width:80px" onclick='fillSlip();'>我想借书</a>
-        <a  class="easyui-linkbutton"  style="width:80px" onclick='viewComments();'>看书评</a>
 
+    <form method='POST' id='form'>
+        借书日期<input class="easyui-datebox" type='text' id='fromdate' required="true">
+        归还日期<input class="easyui-datebox" type='text' id='forecastedreturndate' required="true">
+        说点什么<input class="easyui-textbox" style="width:400px;height:32px" id='comment' value='Thank you very much'>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="width:80px" onclick='requestBorrow();'>确定</a> 
+        
     </form>
 </body>
 </html>

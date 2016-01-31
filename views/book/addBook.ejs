@@ -11,34 +11,34 @@
         if ( !needlogin) {
             window.location = '/login.ejs'; 
         }
-		function queryIcp()
-		{
-			
-		}
-		function uploadCover()
-		{
-			
-		}
-		function saveBook()
-		{
-                    var formdata = {}, bizdata={};
-                    var inputEles=$("input[type='text']");
-                    for ( var i=0; i<inputEles.length; i++ ) {
-                        bizdata[ inputEles[i].id ] = inputEles[i].value;
+        function queryIcp()
+        {
+
+        }
+        function uploadCover()
+        {
+
+        }
+        function saveBook()
+        {
+            var formdata = {}, bizdata={};
+            var inputEles=$("input[type='text']");
+            for ( var i=0; i<inputEles.length; i++ ) {
+                bizdata[ inputEles[i].id ] = inputEles[i].value;
+            }
+            formdata.bizdata= bizdata; 
+            formdata.userinfo = { userid: needlogin.userid, sessionid: needlogin.sessionid };
+            var rp = { z: JSON.stringify( formdata ) };
+            $.ajax ( {
+                    url: "/book/addBook",
+                    method: "post",
+                    data: rp, 
+                    async: false,
+                    success: function ( data) {
+                        alert( JSON.stringify(data) );
                     }
-                    formdata.bizdata= bizdata; 
-                    formdata.userinfo = { userid: needlogin.userid, sessionid: needlogin.sessionid };
-                    var rp = { z: JSON.stringify( formdata ) };
-                    $.ajax ( {
-                            url: "/book/addBook",
-                            method: "post",
-                            data: rp, 
-                            async: false,
-                            success: function ( data) {
-                                alert( JSON.stringify(data) );
-                            }
-                    }) 
-		}
+            }) 
+        }
     </script>
   </head>
   <body>

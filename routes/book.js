@@ -12,10 +12,11 @@ var Book = require('../model/Book');
 var userbooksdao = require('../dao/UserBooksDao'); 
 var bookcmtdao = require( '../dao/BookCommentDao');
 var userschooldao = require('../dao/UserSchoolDao');
+var brdao = require('../dao/BorrowRequestDao');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.send('This is default page for /book.');
+    res.render( 'book/queryBook.ejs');
   } );
 
 router.get('/addBook.ejs', function(req, res, next) {
@@ -161,15 +162,16 @@ router.all('/addBookComment',  function ( req, res ) {
 
 router.all('/findAvailableBooksInSchool', function(req, res) {
     var args = req.jsonData;
+    console.log( args );
      co(function*(){
-        var vq = yield usersession.validate( userinfo.userid, userinfo.sessionid ); 
+        var vq = yield usersession.validate( args.userid, args.sessionid ); 
         if ( vq.errCode != 0 ) {
             res.json ( vq ); 
             return; 
         }
         
         var us = yield userschooldao.getUserSchoolRecs( args.userid );
-        if ( us && us.length >0 ) {
+        if ( !(us && us.length >0) ) {
             res.json( { errCode: -50, result: '未注册所属学校' } );
             return;
         }
@@ -180,5 +182,55 @@ router.all('/findAvailableBooksInSchool', function(req, res) {
             res.json ( { errCode: -301, result: 'failed' } );
     } );
 });
+
+router.all('/borrowBook', function(req, res) {
+    var args = req.jsonData;
+    if ( !(args.userinfo && args.bizdata) ) {
+        res.json( { errCode: 401, result: 'Invalid parameters'} );
+        return;
+    }
+    
+    var userinfo = args.userinfo, bizdata=args.bizdata; 
+    co(function*(){
+        var vq = yield usersession.validate( userinfo.userid, userinfo.sessionid ); 
+        if ( vq.errCode != 0 ) {
+            res.json ( vq ); 
+            return; 
+        }
+        if ( !bizdata.ownerid || !bizdata.fromdate || !bizdata.forecastedreturndate || !bizdata.bookid ) {
+            res.json( { errCode: 401, result: 'No enough parameters'} );
+            return;
+        }
+        
+        var exslips = yield brdao.select ( { borrowerid: userinfo.userid, ownerid: bizdata.ownerid } ); 
+        console.log( exslips );
+        if ( exslips.length >0 ) {
+            var ex1 = exslips.filter( function (e) { e.returned==0; } );
+            console.log( 'eeeeee111111111', ex1);
+            if ( ex1 && ex1.length>0) {
+                res.json( { errCode: 403, result: '你还有未归还的该同学的书, 好借好还再借不难哦' } );
+                return;
+            }
+            
+            var ex2 = exslips.filter( function (e) { e.bookid== bizdata.bookid && e.ownerapproved==0  ; } );
+            console.log( 'eeeeee222222222', ex2);
+            if ( ex2 && ex1.length>0) {
+                res.json( { errCode: 403, result: '你已经借过这本书了' } );
+                return;
+            }
+        }
+        
+        bizdata.fromdate = new Date( bizdata.fromdate );
+        bizdata.forecastedreturndate = new Date( bizdata.forecastedreturndate );
+        
+        bizdata.borrowerid = userinfo.userid; 
+        var slip = yield brdao.insert (args.bizdata ); 
+        if ( slip.borrowrecordid  ) 
+            res.json( { errCode: 0, result: 'ok', value: lst } );
+        else
+            res.json ( { errCode: -402, result: 'failed' } );
+    } );
+});
+
 
 module.exports = router;

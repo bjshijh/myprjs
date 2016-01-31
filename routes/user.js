@@ -60,6 +60,11 @@ router.get('/profile.ejs', function(req, res) {
     res.render( 'user/profile.ejs' );
 } );
 
+router.get('/borrowSlip.ejs', function(req, res) {
+    res.render( 'user/borrowSlip.ejs' );
+} );
+
+
 router.post('/updateIcon', function(req, res) {
     var tgtPath =  path.resolve ( __dirname, '../client/usericon/') ;
     var form = new formidable.IncomingForm(); 

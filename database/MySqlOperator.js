@@ -27,7 +27,27 @@ function getWhere2( whereArg) {
     return where; 
 } ;
 
-MySqlOperator.prototype.select = function * ( tableName, whereArg, orderArg, pagenum, pagesize ) {
+MySqlOperator.prototype.select = function * ( tableName, whereArg, orderArg ) {
+    var sql='SELECT * FROM ' + tableName, where, orderby ;
+    where = getWhere( whereArg);
+    sql += where; 
+ 
+    if ( orderArg) {
+        orderby = ' ORDER BY ' + orderArg; 
+        sql += orderby;
+    };
+
+    try {
+        console.log(sql, whereArg);
+        var rs = yield dbhelper.execute( this.connection, sql, whereArg ); 
+        return rs.rows;
+    } catch(e) {
+        console.log(e);
+        return -1;
+    }
+};
+
+MySqlOperator.prototype.selectPage = function * ( tableName, whereArg, orderArg, pagenum, pagesize ) {
     var sql='SELECT * FROM ' + tableName, where, orderby ;
     where = getWhere( whereArg);
     sql += where; 
@@ -50,6 +70,7 @@ MySqlOperator.prototype.select = function * ( tableName, whereArg, orderArg, pag
         return -1;
     }
 };
+
 
 MySqlOperator.prototype.insert = function * ( tableName, arg) {
     var sql='INSERT INTO ' + tableName, fld=' (', val=' VALUES (';

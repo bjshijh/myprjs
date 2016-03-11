@@ -56,12 +56,8 @@ router.all('/getUserProfile', function(req, res) {
     } );
   }  );
 
-router.get('/profile.ejs', function(req, res) {
-    res.render( 'user/profile.ejs' );
-} );
-
-router.get('/borrowSlip.ejs', function(req, res) {
-    res.render( 'user/borrowSlip.ejs' );
+router.get('/orderMain', function(req, res) {
+    res.redirect( '/user/orderMain.html' );
 } );
 
 

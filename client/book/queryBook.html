@@ -50,12 +50,12 @@
         }
         function viewComments () {
              var r = $('#dgBooks').datagrid('getSelected');
-             window.open( 'viewComments.ejs?z={ "bookid":' + '"' + r.bookid +'"}');
+             window.open( './viewComments.html?z={ "bookid":' + '"' + r.bookid +'"}');
         }
         function gotoBorrow() {
             var row =$('#dgBooks').datagrid('getSelected');
             alert( row.bookid );
-            window.location ='../user/borrowSlip.ejs?bookid=' + row.bookid;
+            window.location ='../user/borrowSlip.htmll?bookid=' + row.bookid;
         }
     </script>
   </head>

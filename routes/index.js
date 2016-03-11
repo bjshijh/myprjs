@@ -14,9 +14,6 @@ router.get('/', function(req, res, next) {
   res.end();
 });
 
-router.get('/login.ejs', function(req, res, next) {
-    res.render( 'login.ejs');
-  } );
 
 router.get('/fruitAnnounce', function(req, res){
   res.redirect('http://www.zhongledp.tv/intro/fruit/index.html')

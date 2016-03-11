@@ -16,15 +16,7 @@ var brdao = require('../dao/BorrowRequestDao');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render( 'book/queryBook.ejs');
-  } );
-
-router.get('/addBook.ejs', function(req, res, next) {
-    res.render( 'book/addBook.ejs');
-  } );
-
-router.get('/queryBook.ejs', function(req, res, next) {
-    res.render( 'book/queryBook.ejs');
+    res.redirect( '/book/queryBook.html');
   } );
 
 router.all('/addBook',  function ( req, res ) {
@@ -124,13 +116,7 @@ router.all('/getBookOwners', function(req, res) {
         res.json( owners );
     } );
 });
-
-router.all('/viewComments.ejs', function(req, res) {
-    var args = req.jsonData;
-
-   res.render( 'book/viewComments.ejs');
-});
-
+ 
 router.all('/addBookComment',  function ( req, res ) {
     var rpjson = req.jsonData ;
     var userdata = rpjson.userinfo; 
@@ -203,18 +189,16 @@ router.all('/borrowBook', function(req, res) {
         }
         
         var exslips = yield brdao.select ( { borrowerid: userinfo.userid, ownerid: bizdata.ownerid } ); 
-        console.log( exslips );
         if ( exslips.length >0 ) {
-            var ex1 = exslips.filter( function (e) { e.returned==0; } );
-            console.log( 'eeeeee111111111', ex1);
+            var ex1 = exslips.filter( function (e) { return e.returned==0; } );
+            
             if ( ex1 && ex1.length>0) {
                 res.json( { errCode: 403, result: '你还有未归还的该同学的书, 好借好还再借不难哦' } );
                 return;
             }
             
-            var ex2 = exslips.filter( function (e) { e.bookid== bizdata.bookid && e.ownerapproved==0  ; } );
-            console.log( 'eeeeee222222222', ex2);
-            if ( ex2 && ex1.length>0) {
+            var ex2 = exslips.filter( function (e) { return (e.bookid== bizdata.bookid && e.ownerapproved==0) ; } );
+            if ( ex2 && ex2.length>0) {
                 res.json( { errCode: 403, result: '你已经借过这本书了' } );
                 return;
             }
@@ -226,7 +210,7 @@ router.all('/borrowBook', function(req, res) {
         bizdata.borrowerid = userinfo.userid; 
         var slip = yield brdao.insert (args.bizdata ); 
         if ( slip.borrowrecordid  ) 
-            res.json( { errCode: 0, result: 'ok', value: lst } );
+            res.json( { errCode: 0, result: 'ok', value: slip } );
         else
             res.json ( { errCode: -402, result: 'failed' } );
     } );

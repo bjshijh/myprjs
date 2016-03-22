@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>借还清单</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="/js/EasyUI/themes/default/easyui.css">
@@ -16,26 +16,28 @@
         
         </script>
     </head>
-    <body>
+    <body style="align:center">
         <div style="margin:20px 0;"></div>
         
-        <div class="easyui-layout" style="width:700px;height:350px;">
-            <div id="p" data-options="region:'west'" title="" style="width:30%;padding:10px">
+        <div class="easyui-layout" style="width:800px;height:400px;">
+            <div id="p" data-options="region:'west'" title="" style="width:20%;padding:10px">
                 借入
                 <ul>
-                    <li>在申请中</li>
-                    <li>未归还的</li>
-                    <li>已还</li>
+                    <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='myborrow(1);'>在申请中</a></li>
+                    <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='myborrow(2);'>未归还的</a></li>
+                    <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='myborrow(4);'>已还</a></li>
                 </ul>
                 
                 借出
                 <ul>
-                    <li>在申请中</li>
-                    <li>未归还的</li>
-                    <li>已还</li>
+                    <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='mylend(1);'>在申请中</a></li>
+                    <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='mylend(2);'>未归还的</a></li>
+                    <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='mylend(4);'>已还</a></li>
                 </ul>
             </div>
-            <div data-options="region:'center'" title="Center">
+            <div data-options="region:'center'" title="Details">
+                <table class="easyui-datagrid" data-options="singleSelect:true, rownumbers:false" id="dgDetails" style="width: 100%;height:500px">
+				</table>
             </div>
 	</div>
 

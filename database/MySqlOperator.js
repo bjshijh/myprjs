@@ -143,4 +143,8 @@ MySqlOperator.prototype.search = function * ( tableName, field, kw, orderArg, pa
     return rs.rows;
 };
 
+MySqlOperator.prototype.executeSql = function * ( sql, args ) {
+    var rs = yield dbhelper.execute( this.connection, sql, args ); 
+    return rs;
+}
 module.exports = MySqlOperator;

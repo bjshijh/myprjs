@@ -47,7 +47,7 @@
         function requestBorrow() {
             var fd = $('#fromdate').datebox('getValue'), rd = $('#forecastedreturndate').datebox('getValue') ; 
             var bizdata = { bookid: bookid, ownerid: needlogin.userid,  fromdate: rd, forecastedreturndate: rd,
-                comment: $('#comment').val()  };
+                comments: $('#comment').val()  };
             var rp = { z: JSON.stringify( { userinfo : needlogin, bizdata: bizdata } ) };
             $.ajax ( {
                 url: "/book/borrowBook",

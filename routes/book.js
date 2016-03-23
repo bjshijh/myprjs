@@ -42,7 +42,7 @@ router.all('/addBook',  function ( req, res ) {
                     }
                 } 
                 
-                var rec = yield userbooksdao.addUserBook( userdata.userid, book.bookid, isopen );
+                var rec = yield userbooksdao.addUserBook( userdata.userid, book.bookid, 1 ); // isOpen: 1
                 if ( rec==0 ) {
                     res.json ( { errCode: 0, result: 'ok' } );
                 } else {
@@ -189,26 +189,28 @@ router.all('/borrowBook', function(req, res) {
         }
         
         var exslips = yield brdao.select ( { borrowerid: userinfo.userid, ownerid: bizdata.ownerid } ); 
+        console.log('existing slips: ', exslips);
         if ( exslips.length >0 ) {
-            var ex1 = exslips.filter( function (e) { return e.returned==0; } );
+            var ex1 = exslips.filter( function (e) { return (e.returned==0 && e.requestconfirmed!=-1); } );
             
             if ( ex1 && ex1.length>0) {
                 res.json( { errCode: 403, result: '你还有未归还的该同学的书, 好借好还再借不难哦' } );
                 return;
             }
             
-            var ex2 = exslips.filter( function (e) { return (e.bookid== bizdata.bookid && e.ownerapproved==0) ; } );
+            var ex2 = exslips.filter( function (e) { return (e.bookid== bizdata.bookid && e.requestconfirmed==0 && e.ownerapproved==0) ; } );
             if ( ex2 && ex2.length>0) {
                 res.json( { errCode: 403, result: '你已经借过这本书了' } );
                 return;
             }
         }
-        
+        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
         bizdata.fromdate = new Date( bizdata.fromdate );
         bizdata.forecastedreturndate = new Date( bizdata.forecastedreturndate );
         
         bizdata.borrowerid = userinfo.userid; 
         var slip = yield brdao.insert (args.bizdata ); 
+        console.log( slip);
         if ( slip.borrowrecordid  ) 
             res.json( { errCode: 0, result: 'ok', value: slip } );
         else

@@ -62,15 +62,19 @@ app.use(function(req, res, next){
 });
 
 var routes = require('./routes/index');
-var user = require(routerPath+'/user');
-var book = require(routerPath+'/book');
-var school = require(routerPath+'/school');
-
-
 app.use ('/', routes );
+
+var user = require(routerPath+'/user');
 app.use('/user', user );
+
+var book = require(routerPath+'/book');
 app.use('/book', book );
+
+var school = require(routerPath+'/school');
 app.use('/school', school);
+
+var brbiz = require(routerPath+'/borrowlenddetails');
+app.use('/borrowlenddetails', brbiz);
 
 // production error handler
 // no stacktraces leaked to user

@@ -106,6 +106,7 @@ MySqlOperator.prototype.update = function * ( tableName, valArg, whereArg ) {
         params.push( whereArg[p]);
     }
     
+    console.log( sql, params );
     try {
         var rs= yield dbhelper.execute( this.connection, sql, params ); 
         return 0;

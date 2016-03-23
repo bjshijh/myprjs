@@ -12,9 +12,8 @@
         <script type='text/javascript' src='/js/cookieAccess.js'></script>
         <script type='text/javascript' src='/js/checklogin.js'></script>
         <script type="text/javascript" src="/js/common/pagetool.js"></script>
-        <script type='text/javascript'>
-        
-        </script>
+        <script type="text/javascript" src="/js/SimpleFormatter.js"></script>
+        <script type='text/javascript' src="/js/biz_borrow/details.js"> </script>
     </head>
     <body style="align:center">
         <div style="margin:20px 0;"></div>
@@ -35,10 +34,24 @@
                     <li><a  class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px" onclick='mylend(4);'>已还</a></li>
                 </ul>
             </div>
-            <div data-options="region:'center'" title="Details">
-                <table class="easyui-datagrid" data-options="singleSelect:true, rownumbers:false" id="dgDetails" style="width: 100%;height:500px">
+            
+            
+            <div data-options="region:'center'" title="清单">
+                <div id="divButtons">
+                    <div id='btnzoneBorrow_1' style='visibility: hidden;height: 0px'>
+                        <a  class="easyui-linkbutton" id='btnBorrower_Cancel' onclick="cancelBorrowing();">取消借书</a>
+                        <a  class="easyui-linkbutton" id='btnBorrower_Confirm' onclick="confirmReceived(2);">确认已收到</a>
+                    </div>
+                    
+                    <div id='btnzoneBorrow_2'  style='visibility: hidden;;height: 0px'>
+                        <a  class="easyui-linkbutton" id='btnLender_Confirm' onclick="confirmReturned(1);">确认归还</a>
+                        <a  class="easyui-linkbutton" id='btnLender_Lose' onclick="confirmLost();" >弄丢了......</a>
+                    </div>
+                </div>
+                <table class="easyui-datagrid" data-options="singleSelect:true, rownumbers:false" id="dgHeaders" style="width: 100%;height:500px">
 				</table>
             </div>
+            
 	</div>
 
     </body>

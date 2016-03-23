@@ -1,14 +1,15 @@
 var dbconn = require('../database/mysql').connection;
 var MySqlOperator = require('../database/MySqlOperator');
 var dboper = new MySqlOperator(dbconn);
+var bizConst = require('../common/bizConstants');
 var uuid = require('uuid');
 
 var BorrowRequestDao = function () {
     this.tableName ='borrowrequests'; 
 
 }
-BorrowRequestDao.prototype.select = function *( args) {
-    var rows = yield dboper.select ( this.tableName, args, null );
+BorrowRequestDao.prototype.select = function *( whereArgs, orderArg ) {
+    var rows = yield dboper.select ( this.tableName, whereArgs, orderArg );
     if ( rows ==-1 )
         return null;
     else
@@ -31,15 +32,15 @@ BorrowRequestDao.prototype.delete = function *( borrowRecordId) {
     return rs;
 };
 
-BorrowRequestDao.prototype.update = function *( args ) {
-    args.updateddttm = new Date();
-    var rs = yield dboper.update( this.tableName, args );
+BorrowRequestDao.prototype.update = function *( valArgs, whereArgs ) {
+    valArgs.updateddttm = new Date();
+    var rs = yield dboper.update( this.tableName, valArgs, whereArgs );
     return rs;
 };
 
 BorrowRequestDao.prototype.findByBorrower = function *( userId, fromDate, ticketStatus, pageNum, pageSize ) {
     var fd = ( fromDate ? fromDate : new Date( '2010-01-01' ) );
-    var sql="SELECT a.ownerid, b.nickname, b.email, b.photourl, a.bookid, b.booktitle, b.cip, b.author, b.publisher, a.createddttm, a.fromdate, a.forecastedreturndate,"
+    var sql="SELECT a.borrowrecordid, a.ownerid, b.nickname, b.email, b.photourl, a.bookid, b.booktitle, b.cip, b.author, b.publisher, a.createddttm, a.fromdate, a.forecastedreturndate,"
         + " a.ownerapproved, a.requestconfirmed, a.returnconfirmed, a.comments "
         +" FROM schoollibrary.borrowrequests a INNER JOIN schoollibrary.v_latest_schoolbooks b ON a.bookid=b.bookid "
         + " WHERE a.borrowerid=? AND a.createddttm>= ?";
@@ -50,14 +51,17 @@ BorrowRequestDao.prototype.findByBorrower = function *( userId, fromDate, ticket
     
     var statussql=""; 
     switch( ticketStatus) {
-        case 1:
-            statussql=" AND ( a.ownerapproved OR ( a.ownerapproved=1 and a.requestconfirmed < 2 ) )";
+        case bizConst.BizTicketStatus_BORROW_INPROCESS:  // 1
+            statussql=" AND ( a.requestconfirmed IN (0, 1) )";
             break;
-        case 2:
-            statussql=" AND ( a.ownerapproved=1 and a.requestconfirmed=2 and a.returnconfirmed <2 )";
+        case bizConst.BizTicketStatus_BORROW_DELIVERIED:  // 2
+            statussql=" AND ( a.ownerapproved=1 AND a.requestconfirmed=2 AND a.returnconfirmed <2 )";
             break;
-        case 4:
+        case bizConst.BizTicketStatus_BORROW_RETURNED:  // 4
             statussql=" AND ( a.ownerapproved=1 and a.requestconfirmed=2 and a.returnconfirmed =2 )";
+            break;
+        case bizConst.BizTicketStatus_BORROW_FAILED:  // 0
+            statussql=" AND ( a.ownerapproved == -1 )";
             break;
         default:
     }
@@ -67,6 +71,7 @@ BorrowRequestDao.prototype.findByBorrower = function *( userId, fromDate, ticket
     sql += " LIMIT " + startIdx + ", " + psize; 
     
     var qp = [ userId, fd ];
+    console.log( sql, qp );
     var rs = yield dboper.executeSql( sql, qp );
     if ( rs && rs.rows )
         return rs.rows;
@@ -74,7 +79,7 @@ BorrowRequestDao.prototype.findByBorrower = function *( userId, fromDate, ticket
         return null;
 };
 
-BorrowRequestDao.prototype.findByOwner = function *( userId, fromDate, ticketStatus ) {
+BorrowRequestDao.prototype.findByLender = function *( userId, fromDate, ticketStatus, pageNum, pageSize ) {
     var fd = ( fromDate ? fromDate : new Date( '2010-01-01' ) );
     var sql="SELECT a.*, b.startdate schooldate, b.schoolid, b.gradeno, b.classno "
         +" FROM borrowrequests a INNER JOIN v_latest_userschool b ON a.ownerid=b.userid "
